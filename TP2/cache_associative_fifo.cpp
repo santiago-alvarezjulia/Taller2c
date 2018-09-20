@@ -28,11 +28,6 @@ void Cache_Associative_Fifo::print_initialization_data() {
 	Cache::print_initialization_data();
 }
 
-int Cache_Associative_Fifo::validate_memory_address(
-	std::bitset<MEMORY_ADDRESS_SIZE> memory_address, std::string hexa_address) {
-	return Cache::validate_memory_address(memory_address, hexa_address);
-}
-
 void Cache_Associative_Fifo::procces_memory_address(std::string binary_address, 
 	std::string hexa_address) {
 	std::string tag = binary_address.substr(0, MEMORY_ADDRESS_SIZE - 

@@ -11,8 +11,7 @@
 
 class CacheProtected {
 	Cache* cache;
-	std::mutex mutex_cache;
-	std::mutex mutex_cout;
+	std::mutex mutex_cache_and_cout;
 	std::mutex mutex_cerr;
 	
 	public:

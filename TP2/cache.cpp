@@ -56,19 +56,6 @@ void Cache::print_initialization_data() {
 	std::cout << std::endl;
 }
 
-int Cache::validate_memory_address(
-	std::bitset<MEMORY_ADDRESS_SIZE> memory_address, std::string hexa_address) {
-	int mod = memory_address.to_ulong() % 4;
-	if (mod != 0) {
-		std::transform(hexa_address.begin(), hexa_address.end(), 
-			hexa_address.begin(), ::tolower);
-		std::cerr << "Direccion invalida: " <<  hexa_address << std::endl;
-		std::cerr << "Abortando" << std::endl;
-		return ERROR;
-	}
-	return OK;
-}
-
 void Cache::print_informe() {
 	std::cout << std::endl;
 	std::cout << "# Informe" << std::endl;

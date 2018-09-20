@@ -33,7 +33,7 @@ void FunctorCache::run() {
 		
 		std::string binary_address = memory_address.to_string();
 		
-		// delego en la cache verificar que sea una direccion valida
+		// delego en cache_protected verificar que sea una direccion valida
 		int result = this->cache_protected
 			.validate_memory_address_and_print_if_invalid(memory_address, 
 			line_cpu_file);
@@ -44,7 +44,7 @@ void FunctorCache::run() {
 			return;
 		}
 		
-		// delego en cache el procesamiento de la direccion de memoria
+		// delego en cache_protected el procesamiento de la direccion de memoria
 		this->cache_protected.procces_memory_address(binary_address, 
 			line_cpu_file);
 	} while (!line_cpu_file.empty());
