@@ -1,0 +1,17 @@
+# Cache Inicializada
+
+* Fabricante: Taller
+* Modelo: Full Associative (LRU) Test CPU
+* Cpu MHz: 1598.91
+
+Miss: 0x00001130
+Miss: 0xff00113c
+Hit: 0x0000113c
+Miss: 0x0000123c
+Miss: 0x00001338
+Miss: 0x00002538
+
+# Informe
+
+* Total de hits: 1
+* Total de misses: 5

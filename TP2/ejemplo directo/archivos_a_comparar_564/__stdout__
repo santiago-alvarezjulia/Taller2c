@@ -1,0 +1,17 @@
+# Cache Inicializada
+
+* Fabricante: Taller
+* Modelo: Direct access Test CPU
+* Cpu MHz: 1608.02
+
+Miss: 0x00001130
+Miss: 0xff00113c
+Miss: 0x0000113c
+Hit: 0x00001138
+Miss: 0x00001438
+Miss: 0x00002138
+
+# Informe
+
+* Total de hits: 1
+* Total de misses: 5

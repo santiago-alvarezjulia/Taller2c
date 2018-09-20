@@ -1,0 +1,15 @@
+# Cache Inicializada
+
+* Fabricante: Banana Inc
+* Modelo: Banana B10 
+* Cpu MHz: 1600.02
+
+Miss: 0x00000000
+Miss: 0xffffff00
+Miss: 0x7fffff00
+Miss: 0xeeeeee00
+
+# Informe
+
+* Total de hits: 0
+* Total de misses: 4

@@ -1,0 +1,31 @@
+# Cache Inicializada
+
+* Fabricante: Taller
+* Modelo: Full Associative Test CPU
+* Cpu MHz: 1600.02
+
+Miss: 0x00000000
+Miss: 0x00000100
+Miss: 0x00000200
+Miss: 0x00000400
+Miss: 0x00000800
+Hit: 0x00000008
+Miss: 0x00001000
+Miss: 0x00002000
+Miss: 0x00004000
+Miss: 0x00008000
+Miss: 0x00010000
+Miss: 0x00020000
+Miss: 0x00040000
+Miss: 0x00080000
+Miss: 0x00100000
+Miss: 0x00200000
+Miss: 0x00400000
+Miss: 0x00800000
+Hit: 0x00000008
+Miss: 0x00000108
+
+# Informe
+
+* Total de hits: 2
+* Total de misses: 18
