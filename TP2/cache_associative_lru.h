@@ -6,10 +6,10 @@
 #include <map> 
 #include <string>
 #include <bitset>
-#define MEMORY_ADDRESS_SIZE 32
 
 class Cache_Associative_Lru: public Cache {
-	std::map<std::string, bool> cache;
+	std::deque<std::string> cache;
+	std::map<std::string, std::deque<std::string>::iterator> addresses_in_cache;
 	
 	public:
 		Cache_Associative_Lru();

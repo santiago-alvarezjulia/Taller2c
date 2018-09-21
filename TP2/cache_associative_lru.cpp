@@ -17,8 +17,11 @@ void Cache_Associative_Lru::set_data(std::map<std::string,
 	std::string> map_data) {
 	Cache::set_data(map_data);
 	
-	std::map<std::string, bool> cache_map;
-	this->cache = cache_map;
+	std::deque<std::string> cache_deque;
+	this->cache = cache_deque;
+	std::map<std::string, std::deque<std::string>::iterator> 
+		addresses_in_cache_map;
+	this->addresses_in_cache = addresses_in_cache_map;
 }
 
 void Cache_Associative_Lru::print_initialization_data() {
@@ -27,15 +30,19 @@ void Cache_Associative_Lru::print_initialization_data() {
 
 void Cache_Associative_Lru::procces_memory_address(std::string binary_address, 
 	std::string hexa_address) {
+	// get tag
 	std::string tag = binary_address.substr(0, MEMORY_ADDRESS_SIZE - 
-			this->offset_len);
-				
-	std::map<std::string, bool>::iterator it;
-	it = this->cache.find(tag);
-	if (it != this->cache.end()) {
-		// HIT -> elimino el bloque de la cache y lo vuelvo a agregar
-		this->cache.erase(it);
-		this->cache.insert(std::pair<std::string, bool> (tag, true));
+		this->offset_len);
+	
+	std::map<std::string, std::deque<std::string>::iterator>::iterator it;
+	it = this->addresses_in_cache.find(tag);
+	if (it != this->addresses_in_cache.end()) {
+		// HIT -> elimino el bloque de la deque y lo vuelvo a encolar
+		this->cache.erase(it->second);
+
+		this->cache.push_front(tag);
+		
+		this->addresses_in_cache[tag] = this->cache.begin();
 		
 		this->hits += 1;
 		
@@ -45,13 +52,18 @@ void Cache_Associative_Lru::procces_memory_address(std::string binary_address,
 			std::cout << "Hit: " <<  hexa_address << std::endl;
 		}
 	} else {
-		// MISS -> primero verifico si esta lleno
-		if (this->cache.size() == (size_t)(this->size / this->block_size)) {
-			// esta lleno. Saco el menos usado recientemente
-			this->cache.erase(this->cache.begin());
+		// MISS, primero verifico si esta lleno
+		if (this->addresses_in_cache.size() == 
+			(size_t)(this->size / this->block_size)) {
+			// esta lleno. Saco el ultimo y pongo este
+			std::string tag_popped = this->cache.back();
+			this->cache.pop_back();
+			this->addresses_in_cache.erase(tag_popped);
 		}
-		// Agrego el tag al final (indiferente si estaba lleno o no)
-		this->cache.insert(std::pair<std::string, bool> (tag, true));
+		// agrego al final y agrego al map
+		this->cache.push_front(tag);
+		this->addresses_in_cache.insert(std::pair<std::string, 
+			std::deque<std::string>::iterator>(tag, this->cache.end()));
 		
 		this->misses += 1;
 		
@@ -60,7 +72,7 @@ void Cache_Associative_Lru::procces_memory_address(std::string binary_address,
 				hexa_address.begin(), ::tolower);
 			std::cout << "Miss: " <<  hexa_address << std::endl;
 		}
-	}			
+	} 		
 }
 
 void Cache_Associative_Lru::print_informe() {
