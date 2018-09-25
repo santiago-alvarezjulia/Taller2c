@@ -11,13 +11,15 @@
 #define MEMORY_ADDRESS_SIZE 32
 #define ERROR 1
 #define OK 0
-using std::map;
-using std::string;
 using std::deque;
-using std::transform;
+using std::map;
 using std::cout;
 using std::endl;
+using std::string;
+using std::stoi;
+using std::to_string;
 using std::pair;
+using std::transform;
 
 Cache_Associative_Fifo::Cache_Associative_Fifo() {}
 
@@ -37,7 +39,7 @@ void Cache_Associative_Fifo::print_initialization_data() {
 void Cache_Associative_Fifo::procces_memory_address(string binary_address, 
 	string hexa_address) {
 	string tag = binary_address.substr(0, MEMORY_ADDRESS_SIZE - 
-			this->offset_len);
+		this->offset_len);
 			
 	if (this->addresses_in_cache.find(tag) != this->addresses_in_cache.end()) {
 		// HIT
@@ -54,17 +56,16 @@ void Cache_Associative_Fifo::procces_memory_address(string binary_address,
 		if (this->addresses_in_cache.size() == (size_t)(this->size / 
 			this->block_size)) {
 			// esta lleno. Saco el ultimo y pongo este
-			string tag_popped = this->cache.front();
+			std::string tag_popped = this->cache.front();
 			this->cache.pop_front();
 			this->addresses_in_cache.erase(tag_popped);
 			
 			this->cache.push_back(tag);
-			this->addresses_in_cache.insert(pair<string, bool> (tag, true));
+			this->addresses_in_cache.insert(pair<string, bool>(tag, true));
 		} else {
 			// no esta lleno
 			this->cache.push_back(tag);
-			this->addresses_in_cache.insert(pair<std::string, bool> 
-				(tag, true));
+			this->addresses_in_cache.insert(pair<string, bool>(tag, true));
 		}
 		
 		this->misses += 1;

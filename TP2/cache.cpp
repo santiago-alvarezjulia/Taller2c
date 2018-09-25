@@ -9,9 +9,9 @@
 #define ERROR 1
 #define OK 0
 using std::map;
-using std::string;
 using std::cout;
 using std::endl;
+using std::string;
 
 Cache::Cache() {}
 
@@ -19,7 +19,7 @@ void Cache::set_data(map<string, string> map_data) {
 	this->hits = 0;
 	this->misses = 0;
 	
-	// default values, en el caso de que no sean especificados por map_data
+	// default values, en el caso de que no sean especificados
 	this->fabricante = "N/A";
 	this->modelo = "N/A";
 	this->cpu_mhz = "N/A";
@@ -57,7 +57,7 @@ void Cache::print_initialization_data() {
 	cout << "* Fabricante: " << this->fabricante << endl;
 	cout << "* Modelo: " << this->modelo << endl;
 	cout << "* Cpu MHz: " << this->cpu_mhz << endl;
-	cout << endl;
+	cout << std::endl;
 }
 
 void Cache::print_informe() {

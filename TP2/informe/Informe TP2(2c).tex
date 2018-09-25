@@ -12,7 +12,7 @@
 
 
 % Titulo principal del documento.
-\title{	TP2: Simulador de Cache}
+\title{TP2: Simulador de Cache}
 
 % Informacion sobre el autor.
 \author{	Santiago Alvarez Juli\'a, \textit{Padr\'on Nro. 99522}                     \\
@@ -65,9 +65,15 @@ Excepto la funcion main, todo el resto del programa fue dise\~nado en base a obj
 
 \item CacheDirect: esta clase es hija de la clase Cache. Utilizo un std::map para simular una cache directa ya que la \'unica condici\'on que se debe cumplir es que la b\'usqueda de tags sea de orden de complejidad menor a n (siendo n la cantidad de elementos que contiene), el m\'etodo 'find' de std::map tiene orden de complejidad log (n).
 
-\item CacheFifo y CacheLru: ambas clases son hijas de la clase Cache. En ambas utilizo un std::map unicamente para la b\'usqueda de tags (al igual que en CacheDirect utilizo el m\'etodo 'find'). Para simular la cache asociativa utilizo el std::deque. En el caso de CacheFifo utilizo std::deque xq me permite agregar tags al cache en O(1) con el m\'etodo 'pushBack' y como as\'i tambi\'en reemplazarlos cuando se llena la cache con el m\'etodo 'popFront'. En el caso de CacheLru agregar tags al cache cuando hay un miss es O(1) y borrar de la cache el bloque menos usado recientemente tambi\'en es O(1) con el m\'etodo 'popFront'. Cuando hay un hit, debe borrarse el bloque viejo y agregar al principio el bloque nuevo, lo que es O(n). En ambas implementaciones tambi\'en utilizo el m\'etodo 'size' de std::map para saber si la cache esta llena y segun documentaci\'on, es O(1).
+\item CacheFifo y CacheLru: ambas clases son hijas de la clase Cache. En ambas utilizo un std::map para la b\'usqueda de tags (al igual que en CacheDirect utilizo el m\'etodo 'find'). Para simular la cache asociativa utilizo el std::deque. En ambos utilizo std::deque xq me permite agregar tags al cache en O(1) con el m\'etodo 'pushBack'. En el caso de la CacheFifo tambi\'en es  O(1) reemplazar un bloque cuando se llena la cache con el m\'etodo 'popFront'. \\
+
+En el caso de CacheLru gracias a std::deque agregar un bloque al cache cuando hay un miss y este no esta lleno es O(1) y borrar de la cache el bloque menos usado recientemente tambi\'en es O(1) con el m\'etodo 'popFront'. Cuando hay un hit debe borrarse el bloque viejo que contiene el mismo tag y agregar al principio el bloque nuevo para que tenga sentido usar 'popFront', para realizar ese reemplazo anteriormente almaceno un iterador a cada elemento que agrego al std::deque y lo amaceno en el std::map donde la clave es el tag asociado a dicho iterador.  Por lo tanto quitar un elemento de std::deque con un iterador es O(1), lo que mas cuesta es almacenar el iterador en el map, lo realizo con el operador[], el cual tiene  orden de complejidad log (n).
+
+En ambas implementaciones tambi\'en utilizo el m\'etodo 'size' de std::map para saber si la cache esta llena que seg\'un documentaci\'on es O(1).\\
+
+Me parece importante aclarar que ser\'ia mejor implementar a CacheFifo y CacheLru como clases derivadas de una nueva clase llamada CacheAsociativa que sea abstracta y sea hija de Cache. Como lo aclara su nombre, ambas caches fifo y lru se comportan de la misma manera excepto en la pol\'itica de reemplazo. No lo implemente de tal manera por falta de tiempo.
  
-\item Lock: es una encapsulacion RAII de la toma y la liberacion del recurso mutex.
+\item Lock: es una encapsulaci\'on RAII de la toma y la liberaci\'on del recurso mutex.
 
 
 \end{itemize}
@@ -75,18 +81,20 @@ Excepto la funcion main, todo el resto del programa fue dise\~nado en base a obj
 
 \subsection{Multi Threading}
 
-Una manera simple de definir a la concurrencia es la separaci\'on de tareas en distintos hilos. Para eso (Packages hereda de threads(cambiar)). 
-
-Dentro del metodo Empaquetar de la clase Empaquetador se lanzan los hilos, 1 por cada archivo de clasificaci\'on ya que la informaci\'on que almacenan puede ser procesadada independientemente. El mayor problema en la concurrencia de este programa sucede cuando se quiere modificar o pedir informacion de los paquetes y cuando se quiere imprimir por pantalla (tambien conocidos como Data Races). 
+Dentro del main thread se lanzan el resto de los hilos, 1 por cada archivo de direcciones de memoria ya que la informaci\'on que almacenan puede ser procesada independientemente. El programa tiene una critical section que es verificar si dado un tag, este se encuentra en la cache y actuar en funci\'on de eso. Tambi\'en pueden ocurrir race conditions cuando se quiere imprimir por pantalla, ya sea por std::cout o std::cerr porque ambos archivos son compartidos por todos los hilos.
 
 \begin{itemize}
 
-\item Paquetes : cada paquete tiene su propio mutex ya que agregar tornillos en distintos paquetes son funciones independientes entre si. Dichos mutex son lockeados cuando se agregan tornillos para evitar problemas de concurrencia. Dentro de AddScrews se verifica si se lleno el paquete y en el caso de que asi sea, se cambio por un nuevo objeto Paquete vacio y se imprime por pantalla que se lleno el Paquete anterior, por lo tanto se evitan problemas como agregar tornillos en un paquete que fue previamente llenado en otro hilo.
+\item Cache : existe una \'unica instancia de Cache y tiene su propio mutex. Ambos elementos est\'an encapsulados en el objeto CacheProtected. Dicho mutex es lockeado solamente cuando hay que procesar un tag, justo despu\'es de verificar si el tag representa una direcci\'on de memoria v\'alida, es decir cuando quiero verificar si dicho tag produce un hit o miss en la cache. Dentro de CacheProtected es lockeado dicho mutex justo antes de llamar al m\'etodo 'proccesMemoryAddress'.
 
-\item Print por pantalla : antes de lanzar los hilos se abren los archivos de clasificacion y se imprime por pantalla si fue correcta su apertura. Luego de "joinear" los hilos se imprime el informe de remanentes.
+\item Std::cout y std::cerr : antes de lanzar los hilos se abre el archivo de configuraci\'on y se imprime por pantalla est\'andar los datos de la cache y luego de "joinear" los hilos se imprime tambi\'en por salida est\'andar el informe de hits y misses que generaron los archivos de direcciones de memoria en la cache. Ninguna de las anteriores impresiones podr\'ia generar una race condition porque siempre van a suceder cuando solamente el main thread est\'a ejecut\'andose.\\
 
-Mientras se ejecutan los hilos pueden imprimirse por pantalla 2 cosas distintas: un error en la informacion del tornillo y cuando se llena un paquete. Para imprimir errores utilizo una clase que se llama FprintfProtected que tiene su propio mutex como atributo, que es al principio de cada uno de sus metodos. Cuando se llena un paquete, se imprime por pantalla que paquete se lleno y cual es la mediana del ancho de tornillos. Como se llenan paquetes al agregar tornillos (AddScrews), se lockea el mutex propio del paquete antes de imprimir por pantalla.  
+En cambio cuando se ejecutan los hilos pueden suceder 2 cosas que podr\'ian producir race conditions: una direcci\'on de memoria inv\'alida y en el caso de que la cache tenga el modo debug en true, cada vez que se produce un hit o miss se tendr\'ia que imprimir sin problemas por salida est\'andar lo sucedido. El primer caso tiene como recurso compartido la salida de error est\'andar std::cerr por lo tanto para evitar la race condition CacheProtected tambi\'en almacena un mutex asociado unicamente con std::cerr que es lockeado antes de verificar la validez de la direcci\'on de memoria que se esta procesando. Para el segundo caso se da la situaci\'on particular de que el recurso compartido std::cout esta protegido por el mutex de la cache ya que este es lockeado solamente cuando hay que procesar un tag, justamente la \'unica situaci\'on en la que se podr\'ia producir una race condition (es decir en el m\'etodo 'proccesMemoryAddress' de cache).
 
 \end{itemize}
+
+\section{Diagramas}
+
+\includegraphics[width=15cm]{diagramaClasesCache.png}
 
 \end{document}

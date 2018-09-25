@@ -9,10 +9,10 @@
 #define ERROR 1
 #define OK 0
 using std::fstream;
-using std::string;
 using std::stringstream;
 using std::hex;
 using std::bitset;
+using std::string;
 
 FunctorCache::FunctorCache(CacheProtected& cache, const char* file_name) : 
 	cache_protected(cache), filename(file_name) {}
@@ -28,7 +28,7 @@ void FunctorCache::run() {
 		}
 		
 		// conversion de hexa a binario para almacenar en std::bitset
-		stringstream ss;
+		std::stringstream ss;
 		ss << hex << line_cpu_file;
 		unsigned n;
 		ss >> n;

@@ -10,13 +10,14 @@
 #define MEMORY_ADDRESS_SIZE 32
 #define ERROR 1
 #define OK 0
-using std::map;
-using std::string;
 using std::deque;
-using std::transform;
+using std::map;
 using std::cout;
 using std::endl;
+using std::string;
+using std::to_string;
 using std::pair;
+using std::transform;
 
 Cache_Associative_Lru::Cache_Associative_Lru() {}
 
@@ -25,7 +26,8 @@ void Cache_Associative_Lru::set_data(map<string, string> map_data) {
 	
 	deque<string> cache_deque;
 	this->cache = cache_deque;
-	map<string, deque<string>::iterator> addresses_in_cache_map;
+	map<string, deque<string>::iterator> 
+		addresses_in_cache_map;
 	this->addresses_in_cache = addresses_in_cache_map;
 }
 

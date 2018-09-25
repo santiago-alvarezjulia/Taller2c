@@ -21,10 +21,10 @@ class Cache {
 	public:
 		Cache();
 		virtual void set_data(std::map<std::string, std::string> map_data);
-		virtual void print_initialization_data();
+		void print_initialization_data();
 		virtual void procces_memory_address(std::string binary_adress, 
 			std::string hexa_address) = 0;
-		virtual void print_informe();
+		void print_informe();
 		virtual ~Cache();
 };
 

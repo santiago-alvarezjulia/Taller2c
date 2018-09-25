@@ -14,10 +14,10 @@ class Cache_Direct: public Cache {
 	public:
 		Cache_Direct();
 		virtual void set_data(std::map<std::string, std::string> map_data);
-		virtual void print_initialization_data();
+		void print_initialization_data();
 		virtual void procces_memory_address(std::string binary_adress, 
 			std::string hexa_address);
-		virtual void print_informe();
+		void print_informe();
 		~Cache_Direct();
 };
 

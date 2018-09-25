@@ -10,13 +10,12 @@
 #define ERROR 1
 #define OK 0
 using std::map;
+using std::cout;
+using std::endl;
 using std::string;
 using std::stoi;
 using std::to_string;
 using std::pair;
-using std::transform;
-using std::cout;
-using std::endl;
 
 Cache_Direct::Cache_Direct() {}
 
@@ -48,7 +47,7 @@ void Cache_Direct::procces_memory_address(string binary_address,
 	it = this->cache.find(to_string(index));
 	if (it == this->cache.end()) {
 		// el bloque esta vacio -> miss. Agrego el nuevo en ese index
-		this->cache.insert(pair<string, string> (to_string(index), tag));
+		this->cache.insert(pair<string, string>(to_string(index), tag));
 			
 		this->misses += 1;
 		

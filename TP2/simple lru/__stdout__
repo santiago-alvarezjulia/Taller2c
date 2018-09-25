@@ -1,7 +1,7 @@
 # Cache Inicializada
 
 * Fabricante: Taller
-* Modelo: Full Associative Test CPU
+* Modelo: Full Associative Test (LRU) CPU
 * Cpu MHz: 1600.02
 
 Miss: 0x00000000
