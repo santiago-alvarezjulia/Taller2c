@@ -8,14 +8,18 @@
 #define MEMORY_ADDRESS_SIZE 32
 #define ERROR 1
 #define OK 0
+using std::fstream;
+using std::string;
+using std::stringstream;
+using std::hex;
+using std::bitset;
 
 FunctorCache::FunctorCache(CacheProtected& cache, const char* file_name) : 
 	cache_protected(cache), filename(file_name) {}
 	
 void FunctorCache::run() {
-	std::fstream cpu_file(this->filename, 
-		std::fstream::in | std::fstream::binary);
-	std::string line_cpu_file;
+	fstream cpu_file(this->filename, fstream::in | fstream::binary);
+	string line_cpu_file;
 	
 	do {
 		getline(cpu_file, line_cpu_file);
@@ -24,14 +28,14 @@ void FunctorCache::run() {
 		}
 		
 		// conversion de hexa a binario para almacenar en std::bitset
-		std::stringstream ss;
-		ss << std::hex << line_cpu_file;
+		stringstream ss;
+		ss << hex << line_cpu_file;
 		unsigned n;
 		ss >> n;
 		
-		std::bitset<MEMORY_ADDRESS_SIZE> memory_address(n);
+		bitset<MEMORY_ADDRESS_SIZE> memory_address(n);
 		
-		std::string binary_address = memory_address.to_string();
+		string binary_address = memory_address.to_string();
 		
 		// delego en cache_protected verificar que sea una direccion valida
 		int result = this->cache_protected

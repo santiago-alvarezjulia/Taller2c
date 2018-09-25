@@ -9,13 +9,21 @@
 #define MEMORY_ADDRESS_SIZE 32
 #define ERROR 1
 #define OK 0
+using std::map;
+using std::string;
+using std::stoi;
+using std::to_string;
+using std::pair;
+using std::transform;
+using std::cout;
+using std::endl;
 
 Cache_Direct::Cache_Direct() {}
 
-void Cache_Direct::set_data(std::map<std::string, std::string> map_data) {
+void Cache_Direct::set_data(map<string, string> map_data) {
 	Cache::set_data(map_data);
 	
-	std::map<std::string, std::string> cache_map;
+	map<string, string> cache_map;
 	this->cache = cache_map;
 	this->index_len = log((this->size / this->block_size)) / log(2);
 }
@@ -24,31 +32,30 @@ void Cache_Direct::print_initialization_data() {
 	Cache::print_initialization_data();
 }
 
-void Cache_Direct::procces_memory_address(std::string binary_address, 
-	std::string hexa_address) {
+void Cache_Direct::procces_memory_address(string binary_address, 
+	string hexa_address) {
 	// calculo el indice a partir de la binary_address. 
-	std::string index_hexa = binary_address.substr(MEMORY_ADDRESS_SIZE - 
+	string index_hexa = binary_address.substr(MEMORY_ADDRESS_SIZE - 
 		this->offset_len - this->index_len, this->index_len);
-	int index = std::stoi(index_hexa, nullptr, 2);
+	int index = stoi(index_hexa, nullptr, 2);
 	
 	// separo el tag de la binary_address
-	std::string tag = binary_address.substr(0, MEMORY_ADDRESS_SIZE - 
+	string tag = binary_address.substr(0, MEMORY_ADDRESS_SIZE - 
 		this->offset_len);
 	
 	// me fijo si el bloque esta ocupado.
-	std::map<std::string, std::string>::iterator it;
-	it = this->cache.find(std::to_string(index));
+	map<string, string>::iterator it;
+	it = this->cache.find(to_string(index));
 	if (it == this->cache.end()) {
 		// el bloque esta vacio -> miss. Agrego el nuevo en ese index
-		this->cache.insert(std::pair<std::string, std::string> 
-			(std::to_string(index), tag));
+		this->cache.insert(pair<string, string> (to_string(index), tag));
 			
 		this->misses += 1;
 		
 		if (this->debug_mode) {
-			std::transform(hexa_address.begin(), hexa_address.end(), 
+			transform(hexa_address.begin(), hexa_address.end(), 
 				hexa_address.begin(), ::tolower);
-			std::cout << "Miss: " <<  hexa_address << std::endl;
+			cout << "Miss: " <<  hexa_address << endl;
 		}
 	} else {
 		// el bloque no esta vacio. Puede ser el mismo (hit) o un bloque 
@@ -63,22 +70,21 @@ void Cache_Direct::procces_memory_address(std::string binary_address,
 			this->hits += 1;
 			
 			if (this->debug_mode) {
-				std::transform(hexa_address.begin(), hexa_address.end(), 
+				transform(hexa_address.begin(), hexa_address.end(), 
 					hexa_address.begin(), ::tolower);
-				std::cout << "Hit: " <<  hexa_address << std::endl;
+				cout << "Hit: " <<  hexa_address << endl;
 			}
 		} else {
 			// El bloque es distinto -> miss. Elimino el anterior y 
 			// agrego el nuevo
-			this->cache.erase(std::to_string(index));
-			this->cache.insert(std::pair<std::string, std::string> 
-				(std::to_string(index), tag));
+			this->cache.erase(to_string(index));
+			this->cache.insert(pair<string, string>(to_string(index), tag));
 			this->misses += 1;
 			
 			if (this->debug_mode) {
-				std::transform(hexa_address.begin(), hexa_address.end(), 
+				transform(hexa_address.begin(), hexa_address.end(), 
 					hexa_address.begin(), ::tolower);
-				std::cout << "Miss: " <<  hexa_address << std::endl;
+				cout << "Miss: " <<  hexa_address << endl;
 			}
 		}
 	}
