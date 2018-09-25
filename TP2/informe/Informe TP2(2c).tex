@@ -1,0 +1,92 @@
+\documentclass[a4paper,12pt]{report}
+
+% Paquete para inclusion de graficos.
+\usepackage{graphicx}
+
+% Paquete para definir la codificacion del conjunto de caracteres usado
+% (latin1 es ISO 8859-1).
+\usepackage[latin1]{inputenc}
+
+% Paquete para definir el idioma usado.
+\usepackage[spanish]{babel}
+
+
+% Titulo principal del documento.
+\title{	TP2: Simulador de Cache}
+
+% Informacion sobre el autor.
+\author{	Santiago Alvarez Juli\'a, \textit{Padr\'on Nro. 99522}                     \\
+            \normalsize{75.42 Taller de Programaci\'on}                             \\
+            \normalsize{Facultad de Ingenier\'ia, Universidad de Buenos Aires}            \\
+       }
+\date{Septiembre 2018}
+
+
+\begin{document}
+
+% Inserta el titulo.
+\maketitle
+
+% Quita el numero en la primer pagina.
+\thispagestyle{empty}
+
+% Crea la tabla de contenidos o indice del informe
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+
+% Aca arranca el cuerpo del informe
+\section{Introducci\'on}
+
+En las siguientes secciones abordar\'e algunos temas claves para la resolucion del programa Simulador de cache. Respecto a la base de programaci\'on de ejercicios anteriores, este difiere en 2 puntos claves :
+
+\begin{itemize}
+\item Programaci\'on Orientada a Objetos (POO)
+\item Multi Threading
+\end{itemize}
+
+
+\section{Temas Claves}
+
+\subsection{Programaci\'on Orientada a Objetos}
+
+Excepto la funcion main, todo el resto del programa fue dise\~nado en base a objetos que se relacionan entre si. A continuaci\'on har\'e una breve descripci\'on de cada objeto de la aplicaci\'on.
+
+\begin{itemize}
+
+\item Thread: este objecto encapsula la clase std::thread (que representa un hilo de ejecuci\'on). Dentro del m\'etodo start llamo al constructor de inicializaci\'on de std::thread que recibe como par\'ametros un puntero al m\'etodo run de Thread y un puntero al objecto para el cual esta definido el m\'etodo run. Dicho m\'etodo run es virtual puro, por lo tanto Thread es una clase abstracta. Esto permite que cualquier objeto pueda correr en su propio hilo mientras herede de Thread e implemente el m\'etodo run.    
+
+\item FunctorCache: como lo indica su nombre este objecto es un functor, su objetivo es encapsular la funci\'on que debe ejecutarse cuando se lanza un hilo. Esta clase hereda de Thread e implementa el m\'etodo run. Dentro de dicho m\'etodo se parsean los archivos binarios que contienen las direcciones de memoria (1 archivo por hilo). Para cada direcci\'on de memoria se le pregunta al atributo CacheProtected si la direcciones es valida y en caso contrario imprime que es invalida. En el caso positivo, se le vuelve a enviar la direcci\'on a CacheProtected para que la procese. En el caso negativo, se finaliza la ejecuci\'on del hilo.
+
+\item CacheProtected: este objecto encapsula al objecto compartido por todos los hilos Cache, su mutex protector y un mutex mas que protege al std::cerr. El mutex protector de cache es utilizado en un unico metodo, que a su vez es el unico metodo en el cual se podria imprimir por std::cout durante la ejecucion multihilo, por lo tanto prescindo de un mutex que proteja a std::cout en particular. Su objetivo es lockear mutex cuando sea necesario, su comportamiento lo delega completamente al objeto Cache (excepto la validaci\'on de direcciones de memoria). 
+
+\item Cache: es una clase abstracta que tiene como clases derivadas CacheDirect, CacheFifo y CacheLru. Tiene como m\'etodo virtual puro 'proccesMemoryAddress' cuya implementaci\'on depende de las clases derivadas. Esta clase tiene como objetivo permitir el polimorfismo para que las distintas clases de cache hagan su propia implementaci\'on de m\'etodos que dependan del tipo de clase derivada. Para el resto de los m\'etodos cuya implementaci\'on es com\'un a todas las caches, esta se escribe en el .cpp de Cache y as\'i evitar repetici\'on de c\'odigo. An\'alogamente sucede lo mismo con los atributos del objeto, si sus comportamientos son comunes a todas las clases derivadas de Cache, estos se escribe en el .cpp de Cache y se declaren como protegidos para que solo puedan acceder clases hijas.
+
+\item CacheDirect: esta clase es hija de la clase Cache. Utilizo un std::map para simular una cache directa ya que la \'unica condici\'on que se debe cumplir es que la b\'usqueda de tags sea de orden de complejidad menor a n (siendo n la cantidad de elementos que contiene), el m\'etodo 'find' de std::map tiene orden de complejidad log (n).
+
+\item CacheFifo y CacheLru: ambas clases son hijas de la clase Cache. En ambas utilizo un std::map unicamente para la b\'usqueda de tags (al igual que en CacheDirect utilizo el m\'etodo 'find'). Para simular la cache asociativa utilizo el std::deque. En el caso de CacheFifo utilizo std::deque xq me permite agregar tags al cache en O(1) con el m\'etodo 'pushBack' y como as\'i tambi\'en reemplazarlos cuando se llena la cache con el m\'etodo 'popFront'. En el caso de CacheLru agregar tags al cache cuando hay un miss es O(1) y borrar de la cache el bloque menos usado recientemente tambi\'en es O(1) con el m\'etodo 'popFront'. Cuando hay un hit, debe borrarse el bloque viejo y agregar al principio el bloque nuevo, lo que es O(n). En ambas implementaciones tambi\'en utilizo el m\'etodo 'size' de std::map para saber si la cache esta llena y segun documentaci\'on, es O(1).
+ 
+\item Lock: es una encapsulacion RAII de la toma y la liberacion del recurso mutex.
+
+
+\end{itemize}
+
+
+\subsection{Multi Threading}
+
+Una manera simple de definir a la concurrencia es la separaci\'on de tareas en distintos hilos. Para eso (Packages hereda de threads(cambiar)). 
+
+Dentro del metodo Empaquetar de la clase Empaquetador se lanzan los hilos, 1 por cada archivo de clasificaci\'on ya que la informaci\'on que almacenan puede ser procesadada independientemente. El mayor problema en la concurrencia de este programa sucede cuando se quiere modificar o pedir informacion de los paquetes y cuando se quiere imprimir por pantalla (tambien conocidos como Data Races). 
+
+\begin{itemize}
+
+\item Paquetes : cada paquete tiene su propio mutex ya que agregar tornillos en distintos paquetes son funciones independientes entre si. Dichos mutex son lockeados cuando se agregan tornillos para evitar problemas de concurrencia. Dentro de AddScrews se verifica si se lleno el paquete y en el caso de que asi sea, se cambio por un nuevo objeto Paquete vacio y se imprime por pantalla que se lleno el Paquete anterior, por lo tanto se evitan problemas como agregar tornillos en un paquete que fue previamente llenado en otro hilo.
+
+\item Print por pantalla : antes de lanzar los hilos se abren los archivos de clasificacion y se imprime por pantalla si fue correcta su apertura. Luego de "joinear" los hilos se imprime el informe de remanentes.
+
+Mientras se ejecutan los hilos pueden imprimirse por pantalla 2 cosas distintas: un error en la informacion del tornillo y cuando se llena un paquete. Para imprimir errores utilizo una clase que se llama FprintfProtected que tiene su propio mutex como atributo, que es al principio de cada uno de sus metodos. Cuando se llena un paquete, se imprime por pantalla que paquete se lleno y cual es la mediana del ancho de tornillos. Como se llenan paquetes al agregar tornillos (AddScrews), se lockea el mutex propio del paquete antes de imprimir por pantalla.  
+
+\end{itemize}
+
+\end{document}
