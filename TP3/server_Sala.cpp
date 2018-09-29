@@ -30,6 +30,9 @@ Sala::Sala(string id, string pantalla, string capacidad) : id(id),
 		vector<char> fila (cant_columnas, ASIENTO_VACIO);
 		asientos_vector.push_back(fila);
 	}
+	
+	this->asientos_ocupados = 0;
+	this->cantidad_total_asientos = cant_filas * cant_columnas;
 }
 	
 Sala::~Sala() {}
