@@ -68,8 +68,7 @@ map<string, Sala> clasificar_salas(fstream& archivo_salas) {
 		pos_en_linea++;
 		if (pos_en_linea == CANT_COLUMNAS_ARCHIVO_SALAS) {
 			Sala sala(id, pantalla, capacidad);
-			salas.insert(std::pair<string, Sala>(id, 
-					sala));
+			salas.insert(std::pair<string, Sala>(id, sala));
 			pos_en_linea = 0;
 		}
 	} while (!archivo_salas.eof());
@@ -128,13 +127,13 @@ vector<multimap<string, Pelicula>> clasificar_peliculas(
 			
 			Pelicula pelicula(titulo, idioma, edad, genero);
 			
-			pelicula_segun_idioma.insert(std::pair<string, Pelicula>(data, 
+			pelicula_segun_idioma.insert(std::pair<string, Pelicula>(idioma, 
 				pelicula));
-			pelicula_segun_edad.insert(std::pair<string, Pelicula>(data, 
+			pelicula_segun_edad.insert(std::pair<string, Pelicula>(edad, 
 				pelicula));
-			pelicula_segun_genero.insert(std::pair<string, Pelicula>(data, 
+			pelicula_segun_genero.insert(std::pair<string, Pelicula>(genero, 
 				pelicula));
-			pelicula_segun_titulo.insert(std::pair<string, Pelicula>(data, 
+			pelicula_segun_titulo.insert(std::pair<string, Pelicula>(titulo, 
 				pelicula));
 		}
 	} while (!archivo_peliculas.eof());
@@ -149,7 +148,8 @@ vector<multimap<string, Pelicula>> clasificar_peliculas(
 
 
 vector<multimap<string, Funcion>> clasificar_funciones(
-	fstream& archivo_funciones) {
+	fstream& archivo_funciones, map<string, Sala> salas, 
+	multimap<string, Pelicula> peliculas) {
 	int pos_en_linea = 0;
 	int id_funcion = 1;
 	string data;
@@ -179,9 +179,23 @@ vector<multimap<string, Funcion>> clasificar_funciones(
 		switch (pos_en_linea) {
 			case 0:
 				id_sala = data;
+				if (salas.find(id_sala) == salas.end()) {
+					cerr << 
+					"La sala " << id_sala << " no existe en el sistema." 
+					<< endl;
+					//return NULL;
+					// TAL VEZ EXCEPCION
+				}
 				break;
 			case 1:
 				titulo = data;
+				if (peliculas.find(titulo) == peliculas.end()) {
+					cerr << 
+					"La película " << titulo << " no existe en el sistema." 
+					<< endl;
+					//return NULL;
+					// TAL VEZ EXCEPCION
+				}
 				break;
 			case 2:
 				fecha = data;
@@ -193,7 +207,10 @@ vector<multimap<string, Funcion>> clasificar_funciones(
 		
 		pos_en_linea++;
 		if (pos_en_linea == CANT_COLUMNAS_ARCHIVO_FUNCIONES) {
-			Funcion funcion(to_string(id_funcion), id_sala, titulo, fecha, hora);
+			map<string, Sala>::iterator it = salas.find(id_sala);
+			
+			Funcion funcion(to_string(id_funcion), id_sala, titulo, fecha, hora,
+				it->second.getCapacidad());
 			
 			funcion_segun_fecha.insert(std::pair<string, Funcion>(fecha, 
 				funcion));
@@ -255,10 +272,15 @@ int main(int argc, char* argv []) {
 		clasificar_peliculas(archivo_peliculas);
 		
 	vector<multimap<string, Funcion>> clasificacion_funciones =
-		clasificar_funciones(archivo_funciones);
+		clasificar_funciones(archivo_funciones, clasificacion_salas, 
+		clasificacion_peliculas[3]);
+	
+	//if (clasificacion_funciones == NULL) {
+	//	return ERROR_ARCHIVOS;
+	//}
 	
 	/*
-	// imprimo titulos de las SUB
+	// imprimo titulos con idioma SUB
 	multimap<string, string> pelicula_segun_idioma = clasificacion_peliculas[0];
 	string idioma = "SUB";
 	std::pair<multimap<string, string>::iterator, multimap<string, string>::iterator> ret;
@@ -269,7 +291,7 @@ int main(int argc, char* argv []) {
 	
 	cout << endl;
 	
-	// imprimo titulos de Drama
+	// imprimo titulos del genero Drama
 	multimap<string, string> pelicula_segun_genero = clasificacion_peliculas[2];
 	string genero = "Drama";
 	std::pair<multimap<string, string>::iterator, multimap<string, string>::iterator> ret2;
@@ -277,7 +299,7 @@ int main(int argc, char* argv []) {
     for (multimap<string, string>::iterator it = ret2.first; it != ret2.second; ++it) {
       cout << it->second << endl;
 	}
-	*/ 
+	 
 	
 	// imprimo titulos de FECHA 25/09/2018
 	multimap<string, Funcion> funciones_segun_fecha = clasificacion_funciones[0];
@@ -287,6 +309,54 @@ int main(int argc, char* argv []) {
     for (multimap<string, Funcion>::iterator it = ret.first; it != ret.second; ++it) {
 		cout << it->second.getTitulo() << endl;
 	}
+	
+	
+	// imprimo sala de funcion 1
+	int cantidad_columnas = clasificacion_funciones[1].find("1")->second.getCantidadColumnas();
+	for (int i = 0; i < cantidad_columnas; i++) {
+		cout << '\t' << i+1;
+	}
+	cout << endl;
+	
+	
+	std::vector<std::vector<char>> asientos = 
+		clasificacion_funciones[1].find("1")->second.getAsientos();
+	int col = 0;
+	std::string columnas_posibles = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	for (std::vector<std::vector<char>>::iterator it = asientos.begin() ; it != asientos.end(); ++it) {
+		cout << columnas_posibles[col];
+		for (std::vector<char>::iterator it2 = (*it).begin() ; it2 != (*it).end(); ++it2) {
+			cout << '\t' << *it2;
+		}
+		
+		col++;
+		cout << endl;
+	}
+	cout << endl;
+	cout << endl;
+	cout << endl;
+	// reservo asiento A-3 en funcion 1 y despues la imprimo
+	bool reservar_asiento = 
+		clasificacion_funciones[1].find("1")->second.reservarAsiento("A", "3");
+	cout << reservar_asiento << endl;
+	for (int i = 0; i < cantidad_columnas; i++) {
+		cout << '\t' << i+1;
+	}
+	cout << endl;
+	
+	std::vector<std::vector<char>> asientos2 = 
+		clasificacion_funciones[1].find("1")->second.getAsientos();
+	col = 0;
+	for (std::vector<std::vector<char>>::iterator it2 = asientos2.begin() ; it2 != asientos2.end(); ++it2) {
+		cout << columnas_posibles[col];
+		for (std::vector<char>::iterator it3 = (*it2).begin() ; it3 != (*it2).end(); ++it3) {
+			cout << '\t' << *it3;
+		}
+		
+		col++;
+		cout << endl;
+	}
+	*/
 	
 	archivo_salas.close();
 	archivo_peliculas.close();
