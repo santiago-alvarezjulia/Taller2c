@@ -13,12 +13,9 @@ class Cache_Associative_Fifo: public Cache {
 	std::map<std::string, bool> addresses_in_cache;
 	
 	public:
-		Cache_Associative_Fifo();
-		virtual void set_data(std::map<std::string, std::string> map_data);
-		void print_initialization_data();
-		virtual void procces_memory_address(std::string binary_address, 
-			std::string hexa_address);
-		void print_informe();
+		Cache_Associative_Fifo(const std::map<std::string, std::string>& map_data);
+		virtual void procces_memory_address(std::string& binary_address, 
+			std::string& hexa_address);
 		~Cache_Associative_Fifo();
 };
 

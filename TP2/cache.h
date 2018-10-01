@@ -8,23 +8,20 @@
 
 class Cache {
 	protected:
-		std::string fabricante;
-		std::string modelo;
-		std::string cpu_mhz;
+		std::map<std::string, std::string> config_data;
 		int hits;
 		int misses;
 		int size;
 		int block_size;
-		bool debug_mode;
 		int offset_len;
+		bool debug_mode;
 	
 	public:
-		Cache();
-		virtual void set_data(std::map<std::string, std::string> map_data);
+		Cache(const std::map<std::string, std::string>& map_data);
 		void print_initialization_data();
-		virtual void procces_memory_address(std::string binary_adress, 
-			std::string hexa_address) = 0;
-		void print_informe();
+		virtual void procces_memory_address(std::string& binary_adress, 
+			std::string& hexa_address) = 0;
+		void print_after_processing();
 		virtual ~Cache();
 };
 

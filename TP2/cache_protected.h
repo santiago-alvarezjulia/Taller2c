@@ -15,15 +15,15 @@ class CacheProtected {
 	std::mutex mutex_cerr;
 	
 	public:
-		explicit CacheProtected(Cache* cache);
-		void set_data(std::map<std::string, std::string> map_data);
+		CacheProtected(std::string& cache_type, 
+			const std::map<std::string, std::string>& map_data);
 		void print_initialization_data();
 		int validate_memory_address_and_print_if_invalid(
-			std::bitset<MEMORY_ADDRESS_SIZE> memory_address, 
-			std::string hexa_address);
-		void procces_memory_address(std::string binary_address, 
-			std::string hexa_address);
-		void print_informe();
+			std::bitset<MEMORY_ADDRESS_SIZE>& memory_address, 
+			std::string& hexa_address);
+		void procces_memory_address(std::string& binary_address, 
+			std::string& hexa_address);
+		void print_after_processing();
 		~CacheProtected();
 };
 

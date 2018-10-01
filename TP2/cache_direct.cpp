@@ -17,22 +17,13 @@ using std::stoi;
 using std::to_string;
 using std::pair;
 
-Cache_Direct::Cache_Direct() {}
-
-void Cache_Direct::set_data(map<string, string> map_data) {
-	Cache::set_data(map_data);
-	
-	map<string, string> cache_map;
-	this->cache = cache_map;
+Cache_Direct::Cache_Direct(const map<string, string>& map_data) : Cache(map_data) {
+	this->cache = map<string, string>();
 	this->index_len = log((this->size / this->block_size)) / log(2);
 }
 
-void Cache_Direct::print_initialization_data() {
-	Cache::print_initialization_data();
-}
-
-void Cache_Direct::procces_memory_address(string binary_address, 
-	string hexa_address) {
+void Cache_Direct::procces_memory_address(string& binary_address, 
+	string& hexa_address) {
 	// calculo el indice a partir de la binary_address. 
 	string index_hexa = binary_address.substr(MEMORY_ADDRESS_SIZE - 
 		this->offset_len - this->index_len, this->index_len);
@@ -87,11 +78,6 @@ void Cache_Direct::procces_memory_address(string binary_address,
 			}
 		}
 	}
-}
-
-
-void Cache_Direct::print_informe() {
-	Cache::print_informe();
 }
 
 Cache_Direct::~Cache_Direct() {}

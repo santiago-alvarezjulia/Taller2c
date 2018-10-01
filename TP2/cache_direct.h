@@ -12,12 +12,9 @@ class Cache_Direct: public Cache {
 	int index_len;
 	
 	public:
-		Cache_Direct();
-		virtual void set_data(std::map<std::string, std::string> map_data);
-		void print_initialization_data();
-		virtual void procces_memory_address(std::string binary_adress, 
-			std::string hexa_address);
-		void print_informe();
+		Cache_Direct(const std::map<std::string, std::string>& map_data);
+		virtual void procces_memory_address(std::string& binary_adress, 
+			std::string& hexa_address);
 		~Cache_Direct();
 };
 

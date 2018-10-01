@@ -3,6 +3,7 @@
 #include "functor_cache.h"
 #include <string>
 #include <fstream>
+#include <iostream>
 #include <bitset>
 #include <sstream>
 #define MEMORY_ADDRESS_SIZE 32
@@ -13,16 +14,18 @@ using std::stringstream;
 using std::hex;
 using std::bitset;
 using std::string;
+using std::cout;
+using std::endl;
 
 FunctorCache::FunctorCache(CacheProtected& cache, const char* file_name) : 
-	cache_protected(cache), filename(file_name) {}
+	cache_protected(cache), archivo_direcciones(fstream(file_name, fstream::in)) {
+}
 	
 void FunctorCache::run() {
-	fstream cpu_file(this->filename, fstream::in | fstream::binary);
 	string line_cpu_file;
 	
 	do {
-		getline(cpu_file, line_cpu_file);
+		getline(this->archivo_direcciones, line_cpu_file);
 		if (line_cpu_file.empty()) {
 			break;
 		}
@@ -44,7 +47,6 @@ void FunctorCache::run() {
 		if (result == ERROR) {
 			// la direccion es invalida -> termino el procesamiento 
 			// del archivo
-			cpu_file.close();
 			return;
 		}
 		
@@ -52,8 +54,6 @@ void FunctorCache::run() {
 		this->cache_protected.procces_memory_address(binary_address, 
 			line_cpu_file);
 	} while (!line_cpu_file.empty());
-	
-	cpu_file.close();
 }
 
 FunctorCache::~FunctorCache() {}

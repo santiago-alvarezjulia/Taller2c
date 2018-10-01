@@ -4,9 +4,11 @@
 #include "Thread.h"
 #include "cache_protected.h"
 
+#include <fstream>
+
 class FunctorCache: public Thread {
 	CacheProtected& cache_protected;
-	const char* filename;
+	std::fstream archivo_direcciones;
 	
 	public :
 		FunctorCache(CacheProtected& cache, const char* file_name);

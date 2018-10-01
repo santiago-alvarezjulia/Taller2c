@@ -6,6 +6,7 @@
 #include <bitset>
 #include <algorithm>
 #define MEMORY_ADDRESS_SIZE 32
+#define DEFAULT_VALUE "N/A"
 #define ERROR 1
 #define OK 0
 using std::map;
@@ -13,54 +14,63 @@ using std::cout;
 using std::endl;
 using std::string;
 
-Cache::Cache() {}
-
-void Cache::set_data(map<string, string> map_data) {
+Cache::Cache(const map<string, string>& map_data) : config_data(map_data) {
 	this->hits = 0;
 	this->misses = 0;
 	
-	// default values, en el caso de que no sean especificados
-	this->fabricante = "N/A";
-	this->modelo = "N/A";
-	this->cpu_mhz = "N/A";
-	this->debug_mode = false;
+	std::map<std::string, std::string>::iterator it = 
+		this->config_data.find("cache size");
+	this->size = atoi(it->second.c_str());
 	
-	for (map<string, string>::iterator it = map_data.begin(); 
-		it != map_data.end(); ++it) {
-		if (it->first.compare("vendor_id") == 0) {
-			this->fabricante = it->second;
-		} else if (it->first.compare("model name") == 0) {
-			this->modelo = it->second;
-		} else if (it->first.compare("cpu MHz") == 0) {
-			this->cpu_mhz = it->second;
-		} else if (it->first.compare("cache size") == 0) {
-			this->size = atoi(it->second.c_str());
-		} else if (it->first.compare("line size") == 0) {
-			this->block_size = atoi(it->second.c_str());
-		} else if (it->first.compare("debug") == 0) {
-			bool debug = false;
-			if (it->second.compare("true") == 0) {
-				debug = true;
-			}
-				
-			this->debug_mode = debug;
+	it = this->config_data.find("line size");
+	this->block_size = atoi(it->second.c_str());
+			
+			
+	this->offset_len = log(this->block_size) / log(2);
+	
+	it = this->config_data.find("debug");
+	bool debug = false; // default debug mode es false
+	if (it != this->config_data.end()) {
+		if (it->second.compare("true") == 0) {
+			debug = true;
 		}
 	}
-	
-	this->offset_len = log(this->block_size) / log(2);
+				
+	this->debug_mode = debug;
 }
 
 void Cache::print_initialization_data() {
 	cout << "# Cache Inicializada" << endl;
 	cout << std::endl;
 	
-	cout << "* Fabricante: " << this->fabricante << endl;
-	cout << "* Modelo: " << this->modelo << endl;
-	cout << "* Cpu MHz: " << this->cpu_mhz << endl;
+	
+	std::map<std::string, std::string>::iterator it = 
+		this->config_data.find("vendor_id");
+	string vendor_id = DEFAULT_VALUE;
+	if (it != this->config_data.end()) {
+		vendor_id = it->second;
+	}
+	cout << "* Fabricante: " << vendor_id << endl;
+	
+	
+	it = this->config_data.find("model name");
+	string model_name = DEFAULT_VALUE;
+	if (it != this->config_data.end()) {
+		model_name = it->second;
+	}
+	cout << "* Modelo: " << model_name << endl;
+	
+	it = this->config_data.find("cpu MHz");
+	string cpu_mhz = DEFAULT_VALUE;
+	if (it != this->config_data.end()) {
+		cpu_mhz = it->second;
+	}
+	cout << "* Cpu MHz: " << cpu_mhz << endl;
+	
 	cout << std::endl;
 }
 
-void Cache::print_informe() {
+void Cache::print_after_processing() {
 	cout << endl;
 	cout << "# Informe" << endl;
 	cout << endl;

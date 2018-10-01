@@ -1,4 +1,5 @@
 #include "cache_associative_lru.h"
+#include "cache.h"
 #include <string>
 #include <deque>
 #include <map> 
@@ -19,24 +20,13 @@ using std::to_string;
 using std::pair;
 using std::transform;
 
-Cache_Associative_Lru::Cache_Associative_Lru() {}
-
-void Cache_Associative_Lru::set_data(map<string, string> map_data) {
-	Cache::set_data(map_data);
-	
-	deque<string> cache_deque;
-	this->cache = cache_deque;
-	map<string, deque<string>::iterator> 
-		addresses_in_cache_map;
-	this->addresses_in_cache = addresses_in_cache_map;
+Cache_Associative_Lru::Cache_Associative_Lru(const map<string, string>& map_data) : Cache(map_data) {
+	this->cache = deque<string>();
+	this->addresses_in_cache = map<string, deque<string>::iterator>();
 }
 
-void Cache_Associative_Lru::print_initialization_data() {
-	Cache::print_initialization_data();
-}
-
-void Cache_Associative_Lru::procces_memory_address(string binary_address, 
-	string hexa_address) {
+void Cache_Associative_Lru::procces_memory_address(string& binary_address, 
+	string& hexa_address) {
 	// get tag
 	string tag = binary_address.substr(0, MEMORY_ADDRESS_SIZE - 
 		this->offset_len);
@@ -80,10 +70,6 @@ void Cache_Associative_Lru::procces_memory_address(string binary_address,
 			cout << "Miss: " <<  hexa_address << endl;
 		}
 	} 		
-}
-
-void Cache_Associative_Lru::print_informe() {
-	Cache::print_informe();
 }
 
 Cache_Associative_Lru::~Cache_Associative_Lru() {}
