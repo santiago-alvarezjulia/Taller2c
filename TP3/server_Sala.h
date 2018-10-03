@@ -6,12 +6,13 @@
 class Sala {
 	std::string id;
 	std::string pantalla;
-	std::string capacidad;
+	int cantidad_filas;
+	int cantidad_columnas;
 	
 	public:
-		Sala(std::string id, std::string pantalla, 
-			std::string capacidad);
-		std::string getCapacidad();
+		Sala(std::string id, std::string pantalla, std::string capacidad);
+		int getCantidadFilas();
+		int getCantidadColumnas();
 		~Sala();	
 };
 

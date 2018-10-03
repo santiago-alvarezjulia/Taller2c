@@ -1,4 +1,6 @@
 #include "server_Funcion.h"
+#include "server_Sala.h"
+#include "server_Pelicula.h"
 #include <string>
 #include <vector>
 #define ASIENTO_VACIO 'O'
@@ -6,22 +8,11 @@
 using std::vector;
 using std::string;
 
-Funcion::Funcion(string id, string id_sala, string titulo, string fecha, 
-	string hora, string capacidad) : id(id), id_sala(id_sala), titulo(titulo), 
-	fecha(fecha), hora(hora) {
-	int cant_filas;
-	int cant_columnas;
-	
-	if (capacidad == "grande") {
-		cant_filas = 15;
-		cant_columnas = 16;
-	} else if (capacidad == "mediana") {
-		cant_filas = 10;
-		cant_columnas = 11;
-	} else {
-		cant_filas = 5;
-		cant_columnas = 6;
-	}
+Funcion::Funcion(string id, Sala sala, Pelicula pelicula, string fecha, 
+	string hora) : id(id), sala(sala), pelicula(pelicula), fecha(fecha), 
+	hora(hora) {
+	int cant_filas = sala.getCantidadFilas();
+	int cant_columnas = sala.getCantidadColumnas();
 	
 	vector<vector<char>> asientos_vector;
 	
@@ -29,25 +20,21 @@ Funcion::Funcion(string id, string id_sala, string titulo, string fecha,
 		vector<char> fila (cant_columnas, ASIENTO_VACIO);
 		asientos_vector.push_back(fila);
 	}
-	
 
 	this->asientos = asientos_vector;
-	this->cantidad_filas = cant_filas;
-	this->cantidad_columnas = cant_columnas;
 	this->asientos_ocupados = 0;
-	this->cantidad_total_asientos = cant_filas * cant_columnas;
 }
 
 string Funcion::getTitulo() {
-	return this->titulo;
+	return this->pelicula.getTitulo();
 }
 
 int Funcion::getCantidadFilas() {
-	return this->cantidad_filas;
+	return this->sala.getCantidadFilas();
 }
 
 int Funcion::getCantidadColumnas() {
-	return this->cantidad_columnas;
+	return this->sala.getCantidadColumnas();
 }
 
 std::vector<std::vector<char>> Funcion::getAsientos() {
@@ -55,7 +42,9 @@ std::vector<std::vector<char>> Funcion::getAsientos() {
 }
 
 bool Funcion::esta_agotada() {
-	return this->asientos_ocupados == this->cantidad_total_asientos;
+	int cantidad_total_asientos = this->sala.getCantidadColumnas() * 
+		this->sala.getCantidadFilas();
+	return this->asientos_ocupados == cantidad_total_asientos;
 }
 
 bool Funcion::reservarAsiento(string fila, string columna) {

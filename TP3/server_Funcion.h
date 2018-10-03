@@ -1,25 +1,24 @@
 #ifndef SERVER_FUNCION_H
 #define SERVER_FUNCION_H
 
+#include "server_Sala.h"
+#include "server_Pelicula.h"
 #include <string>
 #include <vector>
 
 class Funcion {
 	std::string id;
-	std::string id_sala;
-	std::string titulo;
+	Sala sala;
+	Pelicula pelicula;
 	std::string fecha;
 	std::string hora;
 	std::vector<std::vector<char>> asientos;
-	int cantidad_filas;
-	int cantidad_columnas;
 	int asientos_ocupados;
-	int cantidad_total_asientos;
 	int fila_to_number(std::string fila);
 	
 	public:
-		Funcion(std::string id, std::string id_sala, std::string titulo, 
-			std::string fecha, std::string hora, std::string capacidad);
+		Funcion(std::string id, Sala sala, Pelicula pelicula, std::string fecha, 
+		std::string hora);
 		std::string getTitulo();
 		int getCantidadFilas();
 		int getCantidadColumnas();
