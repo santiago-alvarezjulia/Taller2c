@@ -25,8 +25,20 @@ Funcion::Funcion(string id, Sala sala, Pelicula pelicula, string fecha,
 	this->asientos_ocupados = 0;
 }
 
+string Funcion::getId() {
+	return this->id;
+}
+
+string Funcion::getIdSala() {
+	return this->sala.getId();
+}
+
 string Funcion::getTitulo() {
 	return this->pelicula.getTitulo();
+}
+
+string Funcion::getHora() {
+	return this->hora;
 }
 
 int Funcion::getCantidadFilas() {

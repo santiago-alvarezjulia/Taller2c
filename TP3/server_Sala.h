@@ -11,6 +11,7 @@ class Sala {
 	
 	public:
 		Sala(std::string id, std::string pantalla, std::string capacidad);
+		std::string getId();
 		int getCantidadFilas();
 		int getCantidadColumnas();
 		~Sala();	

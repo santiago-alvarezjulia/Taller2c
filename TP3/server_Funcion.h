@@ -18,8 +18,11 @@ class Funcion {
 	
 	public:
 		Funcion(std::string id, Sala sala, Pelicula pelicula, std::string fecha, 
-		std::string hora);
+			std::string hora);
+		std::string getId();
+		std::string getIdSala();
 		std::string getTitulo();
+		std::string getHora();
 		int getCantidadFilas();
 		int getCantidadColumnas();
 		std::vector<std::vector<char>> getAsientos();

@@ -18,6 +18,10 @@ Sala::Sala(string id, string pantalla, string capacidad) : id(id),
 	}	
 }
 
+string Sala::getId() {
+	return this->id;
+}
+
 int Sala::getCantidadFilas() {
 	return this->cantidad_filas;
 }

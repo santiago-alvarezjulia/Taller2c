@@ -8,6 +8,7 @@
 #include "server_Funcion.h"
 #include "common_socket.h"
 #include "server_End_App.h"
+#include "server_Server.h"
 #define CANT_PARAMETROS 5
 #define POS_PORT 1
 #define POS_SALAS 2
@@ -20,6 +21,7 @@
 #define CANT_COLUMNAS_ARCHIVO_PELICULAS 4
 #define CANT_COLUMNAS_ARCHIVO_FUNCIONES 4
 #define CANT_COLUMNAS_ARCHIVO_SALAS 3
+#define FIN_ENVIO_SOCKET 0
 using std::fstream;
 using std::cerr;
 using std::cout;
@@ -175,10 +177,15 @@ int main(int argc, char* argv []) {
 	
 	Socket main_socket;
 	main_socket.bind_and_listen(argv[POS_PORT]);
+	Socket asoc = main_socket.accept_();
 	
+	Server server(asoc, clasificacion_peliculas, clasificacion_funciones);
+	server.run();
+	
+	// Lanzo un thread (End_App) que lee std::cin. Si lee una q, frena todo 
+	// el programa.
 	End_App thread_end_app;
 	thread_end_app.start();
-	
 	while (true) {
 		//Socket asoc = main_socket.accept_();
 		if (!thread_end_app.isAlive()) {

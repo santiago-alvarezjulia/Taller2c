@@ -1,0 +1,26 @@
+1: <Funcion para "Megalodon (Castellano)" en la sala A con fecha 25/09/2018 - 18:00>
+2: <Funcion para "Megalodon (Castellano)" en la sala C con fecha 25/09/2018 - 18:00>
+3: <Funcion para "1945" en la sala B con fecha 25/09/2018 - 18:00>
+9: <Funcion para "Hotel Transylvania 14" en la sala C con fecha 25/09/2018 - 14:00>
+9: <Funcion para "Hotel Transylvania 14" en la sala C con fecha 25/09/2018 - 14:00>
+Asientos:
+	1	2	3	4	5	6
+A	O	O	O	O	X	X
+B	O	O	O	O	O	O
+C	O	O	X	X	O	O
+D	O	O	O	O	O	O
+E	O	O	O	O	O	O
+OK
+OK
+OK
+OK
+ERROR: El asiento ya está reservado
+ERROR: El asiento ya está reservado
+9: <Funcion para "Hotel Transylvania 14" en la sala C con fecha 25/09/2018 - 14:00>
+Asientos:
+	1	2	3	4	5	6
+A	X	X	X	X	X	X
+B	O	O	O	O	O	O
+C	O	O	X	X	O	O
+D	O	O	O	O	O	O
+E	O	O	O	O	O	O
