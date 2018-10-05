@@ -1,5 +1,5 @@
-#ifndef COMMON_THREAD_H
-#define COMMON_THREAD_H
+#ifndef SERVER_THREAD_H
+#define SERVER_THREAD_H
 
 #include <thread>
  
@@ -21,4 +21,4 @@ class Thread {
 		Thread& operator=(Thread&& other);
 };
 
-#endif // COMMON_THREAD_H
+#endif // SERVER_THREAD_H

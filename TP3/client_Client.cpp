@@ -79,7 +79,7 @@ void Client::funciones_del_dia(unsigned char function, string fecha) {
 		this->socket.receive_((unsigned char*)estado_asientos_funcion.c_str(), 
 			len_estado_asientos_funcion);
 		
-		if (estado_asientos_funcion == "[AGOTADA]") {
+		if (estado_asientos_funcion == "AGOTADA") {
 			cout << id_funcion << ": <Funcion para \"" << titulo 
 			<< "\" en la sala " << id_sala << " con fecha " << fecha << " - " 
 			<< hora << "> " << estado_asientos_funcion << endl;

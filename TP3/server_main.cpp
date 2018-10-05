@@ -7,8 +7,8 @@
 #include "server_Pelicula.h"
 #include "server_Funcion.h"
 #include "common_socket.h"
-#include "server_End_App.h"
-#include "server_Server.h"
+#include "server_ThreadServer.h"
+#include "server_Multi_Client_Acceptor.h"
 #define CANT_PARAMETROS 5
 #define POS_PORT 1
 #define POS_SALAS 2
@@ -22,6 +22,8 @@
 #define CANT_COLUMNAS_ARCHIVO_FUNCIONES 4
 #define CANT_COLUMNAS_ARCHIVO_SALAS 3
 #define FIN_ENVIO_SOCKET 0
+#define END_APP 'q'
+using std::cin;
 using std::fstream;
 using std::cerr;
 using std::cout;
@@ -175,21 +177,22 @@ int main(int argc, char* argv []) {
 		clasificar_funciones(archivo_funciones, clasificacion_salas, 
 		clasificacion_peliculas[3]);
 	
+	// creo el socket que escucha clientes nuevos.
 	Socket main_socket;
 	main_socket.bind_and_listen(argv[POS_PORT]);
-	Socket asoc = main_socket.accept_();
+	// EXCEPCION SI ALGO SALE MAL DEL SOCKET
 	
-	Server server(asoc, clasificacion_peliculas, clasificacion_funciones);
-	server.run();
+	Multi_Client_Acceptor thread_acceptor(main_socket, 
+		clasificacion_peliculas, clasificacion_funciones);
+	thread_acceptor.start();
 	
-	// Lanzo un thread (End_App) que lee std::cin. Si lee una q, frena todo 
-	// el programa.
-	End_App thread_end_app;
-	thread_end_app.start();
+	// leo el std::cin. Si recibo una q -> paro el thread_acceptor y lo joineo
+	char input;
 	while (true) {
-		//Socket asoc = main_socket.accept_();
-		if (!thread_end_app.isAlive()) {
-			thread_end_app.join();
+		input = cin.get();
+		if (input == END_APP) {
+			thread_acceptor.stop();
+			thread_acceptor.join();
 			break;
 		}
 	}

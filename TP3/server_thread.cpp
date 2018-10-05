@@ -1,4 +1,4 @@
-#include "common_thread.h"
+#include "server_thread.h"
 
 Thread::Thread(Thread&& other) {
 	this->thread = std::move(other.thread);

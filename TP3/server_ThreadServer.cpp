@@ -1,4 +1,4 @@
-#include "server_Server.h"
+#include "server_ThreadServer.h"
 #include "common_socket.h"
 #include "server_Pelicula.h"
 #include "server_Funcion.h"
@@ -21,24 +21,27 @@ using std::cout;
 using std::endl;
 
  
-Server::Server(Socket& socket, 
+ThreadServer::ThreadServer(Socket& socket, 
 	std::vector<std::multimap<std::string, Pelicula>>& peliculas, 
 	std::vector<std::multimap<std::string, Funcion>>& funciones) : 
-	socket(std::move(socket)), peliculas(peliculas), funciones(funciones) {}
+	socket(std::move(socket)), peliculas(peliculas), funciones(funciones) {
+	this->is_alive = true;
+}
 
+ThreadServer::ThreadServer(ThreadServer&& other) : 
+	socket(std::move(other.socket)), peliculas(other.peliculas), 
+	funciones(other.funciones) {
+	this->is_alive = other.is_alive;
+}
 
-void Server::run() {
-	while (true) {
-		cout << "esperando function" << endl;
-		
+void ThreadServer::run() {
+	while (this->is_alive) {
 		unsigned char function;
 		int i = this->socket.receive_(&function, sizeof(unsigned char));
 		if (i == 0) {
-			cout << "fin esperando function" << endl;
+			// cerro el socket el cliente -> se termina la transmision de datos
 			return;
 		}
-	
-		cout << "Function: " << function << endl;
 	
 		if (function == FUNCTION_GENERO) {
 			send_genero_idioma_edad(this->peliculas[2]);
@@ -54,9 +57,10 @@ void Server::run() {
 			asientos();
 		}
 	}
+	this->is_alive = false;
 }
 
-void Server::send_genero_idioma_edad(
+void ThreadServer::send_genero_idioma_edad(
 	multimap<string, Pelicula>& peliculas_segun_data) {
 	// recibo la longitud de data (puede ser un idioma, una edad o un genero)
 	unsigned int len_data;
@@ -83,7 +87,7 @@ void Server::send_genero_idioma_edad(
 	this->socket.send_((unsigned char*)&fin_envio_socket, sizeof(unsigned int));
 }
 
-void Server::send_funciones_dia() {
+void ThreadServer::send_funciones_dia() {
 	// recibo la longitud de la fecha
 	unsigned int len_fecha;
 	this->socket.receive_((unsigned char*)&len_fecha, sizeof(unsigned int));
@@ -127,9 +131,9 @@ void Server::send_funciones_dia() {
 		bool esta_agotada_funcion = it->second.esta_agotada();
 		string estado_funcion;
 		if (esta_agotada_funcion) {
-			estado_funcion = "[AGOTADA]";
+			estado_funcion = "AGOTADA";
 		} else {
-			estado_funcion = "[NO AGOTADA]";
+			estado_funcion = "NO AGOTADA";
 		}
 		unsigned int len_estado_funcion = estado_funcion.size();
 		this->socket.send_((unsigned char*)&len_estado_funcion, 
@@ -142,7 +146,7 @@ void Server::send_funciones_dia() {
 	this->socket.send_((unsigned char*)&fin_envio_socket, sizeof(unsigned int));
 }
 
-void Server::reservar_asiento() {
+void ThreadServer::reservar_asiento() {
 	// recibo la longitud del id_funcion
 	unsigned int len_id_funcion;
 	this->socket.receive_((unsigned char*)&len_id_funcion, 
@@ -188,7 +192,7 @@ void Server::reservar_asiento() {
 	}
 }
 
-void Server::asientos() {
+void ThreadServer::asientos() {
 	// recibo la longitud del id_funcion
 	unsigned int len_id_funcion;
 	this->socket.receive_((unsigned char*)&len_id_funcion, 
@@ -237,7 +241,14 @@ void Server::asientos() {
     
 }
 
+void ThreadServer::stop() {
+	this->is_alive = false;
+}
 
-Server::~Server() {
+bool ThreadServer::has_ended() {
+	return !this->is_alive;
+}
+
+ThreadServer::~ThreadServer() {
 	this->socket.shutdown_rw();
 }

@@ -1,5 +1,5 @@
-#ifndef COMMON_LOCK_H
-#define COMMON_LOCK_H
+#ifndef SERVER_LOCK_H
+#define SERVER_LOCK_H
 
 #include <mutex>
 
@@ -15,4 +15,4 @@ class Lock {
 		~Lock();
 };
 
-#endif // COMMON_LOCK_H
+#endif // SERVER_LOCK_H
