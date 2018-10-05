@@ -17,7 +17,8 @@ using std::stoi;
 using std::to_string;
 using std::pair;
 
-Cache_Direct::Cache_Direct(const map<string, string>& map_data) : Cache(map_data) {
+Cache_Direct::Cache_Direct(const map<string, string>& map_data) : 
+	Cache(map_data) {
 	this->cache = map<string, string>();
 	this->index_len = log((this->size / this->block_size)) / log(2);
 }

@@ -17,7 +17,7 @@ class Cache {
 		bool debug_mode;
 	
 	public:
-		Cache(const std::map<std::string, std::string>& map_data);
+		explicit Cache(const std::map<std::string, std::string>& map_data);
 		void print_initialization_data();
 		virtual void procces_memory_address(std::string& binary_adress, 
 			std::string& hexa_address) = 0;

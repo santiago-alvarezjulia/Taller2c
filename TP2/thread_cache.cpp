@@ -1,6 +1,6 @@
 #include "Thread.h"
 #include "cache_protected.h"
-#include "functor_cache.h"
+#include "thread_cache.h"
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -17,11 +17,16 @@ using std::string;
 using std::cout;
 using std::endl;
 
-FunctorCache::FunctorCache(CacheProtected& cache, const char* file_name) : 
-	cache_protected(cache), archivo_direcciones(fstream(file_name, fstream::in)) {
-}
+ThreadCache::ThreadCache(CacheProtected& cache, const char* file_name) : 
+	cache_protected(cache),
+	archivo_direcciones(fstream(file_name, fstream::in)) {}
 	
-void FunctorCache::run() {
+ThreadCache::ThreadCache(ThreadCache&& other) : 
+	cache_protected(other.cache_protected) {
+	this->archivo_direcciones = std::move(other.archivo_direcciones);
+}
+
+void ThreadCache::run() {
 	string line_cpu_file;
 	
 	do {
@@ -56,5 +61,5 @@ void FunctorCache::run() {
 	} while (!line_cpu_file.empty());
 }
 
-FunctorCache::~FunctorCache() {}
+ThreadCache::~ThreadCache() {}
 

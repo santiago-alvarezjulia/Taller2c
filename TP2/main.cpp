@@ -1,5 +1,5 @@
 #include "cache_protected.h"
-#include "functor_cache.h"
+#include "thread_cache.h"
 #include "cache.h"
 #include "Thread.h"
 #include <fstream>
@@ -44,27 +44,25 @@ int main(int argc, char* argv[]) {
 	}
 		
 	CacheProtected cache_protected(cache_type, map_config_file);
-	vector<Thread*> threads;
+	vector<ThreadCache> threads;
 	
 	// Cache protected imprime los datos de configuracion de cache
 	cache_protected.print_initialization_data();
 	
 	// Agrego al vector un FunctorCache por archivo de direcciones de memoria
 	for(int i = 2; i < argc; i++) {
-		threads.push_back(new FunctorCache(cache_protected, 
-			(const char*)argv[i]));
+		threads.emplace_back(ThreadCache(cache_protected, (const char*)argv[i]));
 	}
 	
 	// Corro los hilos
 	for (size_t i = 0; i < threads.size(); i++) {
-		threads[i]->start();
+		threads[i].start();
 	}
 	
 	// Espero a que termine la ejecucion de todos los hilos y libero recursos
 	// de los hilos que esten en el heap.
 	for (size_t i = 0; i < threads.size(); i++) {
-		threads[i]->join();
-		delete threads[i];
+		threads[i].join();
 	}
 	
 	// Cache protected imprime el informe final

@@ -21,7 +21,8 @@ using std::to_string;
 using std::pair;
 using std::transform;
 
-Cache_Associative_Fifo::Cache_Associative_Fifo(const map<string, string>& map_data) : Cache(map_data) {
+Cache_Associative_Fifo::Cache_Associative_Fifo(const map<string, string>& 
+	map_data) : Cache(map_data) {
 	this->cache = deque<string>();
 	this->addresses_in_cache = map<string, bool>();
 }

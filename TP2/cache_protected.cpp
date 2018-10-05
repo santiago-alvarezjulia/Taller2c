@@ -32,7 +32,7 @@ CacheProtected::CacheProtected(std::string& cache_type,
 		this->cache = new Cache_Associative_Fifo(map_data);
 	}
 }
-		
+
 void CacheProtected::print_initialization_data() {
 	cache->print_initialization_data();
 }

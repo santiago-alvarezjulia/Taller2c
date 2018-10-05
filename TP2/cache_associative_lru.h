@@ -9,10 +9,11 @@
 
 class Cache_Associative_Lru: public Cache {
 	std::deque<std::string> cache;
-	std::map<std::string, std::deque<std::string>::iterator> addresses_in_cache;
+	std::map<std::string, bool> addresses_in_cache;
 	
 	public:
-		Cache_Associative_Lru(const std::map<std::string, std::string>& map_data);
+		Cache_Associative_Lru(const std::map<std::string, std::string>& 
+			map_data);
 		virtual void procces_memory_address(std::string& binary_address, 
 			std::string& hexa_address);
 		~Cache_Associative_Lru();
