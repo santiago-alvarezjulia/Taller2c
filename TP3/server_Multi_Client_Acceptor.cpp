@@ -15,40 +15,44 @@ using std::string;
 
 Multi_Client_Acceptor::Multi_Client_Acceptor(Socket& socket, 
 	vector<multimap<string, Pelicula>>& peliculas, 
-	vector<multimap<string, Funcion>>& funciones) : 
+	FuncionesProtected& funciones) : 
 	socket_aceptador(std::move(socket)), peliculas(peliculas), 
 	funciones(funciones) {
-	this->is_alive = true;
-	this->threads = vector<ThreadServer>();
+	this->esta_vivo = true;
+	this->threads = vector<ThreadServer*>();
 }
 
 void Multi_Client_Acceptor::run() {
-	while (this->is_alive) {
+	while (this->esta_vivo) {
 		// mientras este vivo, sigo aceptando clientes.
 		Socket asoc = this->socket_aceptador.accept_();
-		if (!this->is_alive) {
-			// se cerraron las comunicaciones
+		if (!this->esta_vivo) {
+			// se cerro la conexion del socket aceptador
 			break;
 		}
-		this->threads.emplace_back(ThreadServer(asoc, this->peliculas, 
-			this->funciones));
-		this->threads[this->threads.size() - 1].start();
+		this->threads.push_back(new ThreadServer(asoc, this->peliculas, 
+			&this->funciones));
+		this->threads[this->threads.size() - 1]->start();
 		
 		for (size_t i = 0; i < this->threads.size(); i++) {
-			if (this->threads[i].has_ended()) {
-				this->threads[i].join();
+			if (this->threads[i]->ha_terminado()) {
+				this->threads[i]->join();
+				delete this->threads[i];
+				this->threads.erase(this->threads.begin() + i);
 			}
 		}
 	}
 }
 
-void Multi_Client_Acceptor::stop() {
-	this->is_alive = false;
+void Multi_Client_Acceptor::frenar() {
+	this->esta_vivo = false;
+	// cierro la conexion del socket aceptador
 	this->socket_aceptador.shutdown_rw();
 }
 
 Multi_Client_Acceptor::~Multi_Client_Acceptor() {
 	for (size_t i = 0; i < this->threads.size(); i++) {
-		this->threads[i].join();
+		this->threads[i]->join();
+		delete this->threads[i];
 	}
 }

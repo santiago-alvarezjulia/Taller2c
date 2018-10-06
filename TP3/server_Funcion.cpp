@@ -17,7 +17,7 @@ Funcion::Funcion(string id, Sala sala, Pelicula pelicula, string fecha,
 	vector<vector<char>> asientos_vector;
 	
 	for (int i = 0; i < cant_filas; i++) {
-		vector<char> fila (cant_columnas, ASIENTO_VACIO);
+		vector<char> fila(cant_columnas, ASIENTO_VACIO);
 		asientos_vector.push_back(fila);
 	}
 
@@ -39,6 +39,10 @@ string Funcion::getTitulo() {
 
 string Funcion::getHora() {
 	return this->hora;
+}
+
+string Funcion::getFecha() {
+	return this->fecha;
 }
 
 int Funcion::getCantidadFilas() {

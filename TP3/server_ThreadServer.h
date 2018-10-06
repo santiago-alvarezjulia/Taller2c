@@ -5,15 +5,16 @@
 #include "server_Pelicula.h"
 #include "server_Funcion.h"
 #include "server_thread.h"
+#include "server_FuncionesProtected.h"
 #include <vector>
 #include <map>
 #include <string>
 
 class ThreadServer : public Thread {
 	Socket socket;
-	bool is_alive;
+	bool esta_vivo;
 	std::vector<std::multimap<std::string, Pelicula>> peliculas;
-	std::vector<std::multimap<std::string, Funcion>> funciones;
+	FuncionesProtected* funciones;
 	void send_genero_idioma_edad(
 		std::multimap<std::string, Pelicula>& peliculas_segun_data);
 	void send_funciones_dia();
@@ -23,11 +24,10 @@ class ThreadServer : public Thread {
 	public:
 		ThreadServer(Socket& socket, 
 			std::vector<std::multimap<std::string, Pelicula>>& peliculas, 
-			std::vector<std::multimap<std::string, Funcion>>& funciones);
+			FuncionesProtected* funciones);
 		ThreadServer(ThreadServer&& other); 
 		virtual void run();
-		void stop();
-		bool has_ended();
+		bool ha_terminado();
 		~ThreadServer();
 };
 

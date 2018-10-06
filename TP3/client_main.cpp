@@ -38,17 +38,20 @@ int main(int argc, char* argv []) {
 	
 	string comando;
 	string data;
-	string id_funcion;
-	string fila;
-	string columna;
 	while (getline(cin, comando, DELIM_CIN)) {
 		if (comando == RESERVA) {
+			// el comando Reserva además recibe 3 paramentros; id_funcion, fila
+			// y columna.
+			string id_funcion;
+			string fila;
+			string columna;
 			getline(cin, id_funcion, DELIM_CIN);
 			getline(cin, fila, DELIM_CIN);
 			getline(cin, columna);
 			cliente.reservar_asiento(FUNCTION_RESERVA, id_funcion, fila, 
 				columna);
 		} else {
+			// el resto de los comandos recibe 1 solo parametro (data)
 			getline(cin, data);
 			
 			if (comando == ASIENTOS) {

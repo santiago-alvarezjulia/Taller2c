@@ -14,7 +14,6 @@ class Pelicula {
 			std::string genero);
 		std::string getTitulo();
 		~Pelicula();	
-
 };
 
 #endif // SERVER_PELICULA_H

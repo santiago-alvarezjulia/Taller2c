@@ -3,12 +3,16 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <mutex>
 #include "server_Sala.h"
 #include "server_Pelicula.h"
 #include "server_Funcion.h"
 #include "common_socket.h"
 #include "server_ThreadServer.h"
 #include "server_Multi_Client_Acceptor.h"
+#include "server_FuncionesProtected.h"
+#include "server_ArchivoEntradaError.h"
+#include "common_SocketError.h"
 #define CANT_PARAMETROS 5
 #define POS_PORT 1
 #define POS_SALAS 2
@@ -16,6 +20,7 @@
 #define POS_FUNCIONES 4
 #define ERROR_PARAMETROS 1
 #define ERROR_ARCHIVOS 2
+#define ERROR_SOCKET 3
 #define OK 0
 #define DELIM_CSV ','
 #define CANT_COLUMNAS_ARCHIVO_PELICULAS 4
@@ -33,6 +38,7 @@ using std::string;
 using std::vector;
 using std::map;
 using std::to_string;
+using std::mutex;
 
 
 map<string, Sala> clasificar_salas(fstream& archivo_salas) {
@@ -44,7 +50,7 @@ map<string, Sala> clasificar_salas(fstream& archivo_salas) {
 	while (getline(archivo_salas, id, DELIM_CSV) && 
 		getline(archivo_salas, pantalla, DELIM_CSV) && 
 		getline(archivo_salas, capacidad)) {
-		salas.emplace(id, Sala (id, pantalla, capacidad));
+		salas.emplace(id, Sala(id, pantalla, capacidad));
 	}
 	
 	return salas;
@@ -84,7 +90,7 @@ vector<multimap<string, Pelicula>> clasificar_peliculas(
 }
 
 
-vector<multimap<string, Funcion>> clasificar_funciones(
+void clasificar_funciones(FuncionesProtected* funciones,
 	fstream& archivo_funciones, map<string, Sala>& salas, 
 	multimap<string, Pelicula>& peliculas) {
 	int id_funcion = 1;
@@ -92,9 +98,6 @@ vector<multimap<string, Funcion>> clasificar_funciones(
 	string titulo;
 	string fecha;
 	string hora;
-	multimap<string, Funcion> funcion_segun_fecha;
-	multimap<string, Funcion> funcion_segun_id;
-	vector<multimap<string, Funcion>> clasificacion;
 	
 	while (getline(archivo_funciones, id_sala, DELIM_CSV) && 
 		getline(archivo_funciones, titulo, DELIM_CSV) &&
@@ -102,33 +105,27 @@ vector<multimap<string, Funcion>> clasificar_funciones(
 		getline(archivo_funciones, hora)) {
 		map<string, Sala>::iterator it_salas = salas.find(id_sala);
 		if (it_salas == salas.end()) {
-			cerr << 
-			"La sala " << id_sala << " no existe en el sistema." 
-			<< endl;
-			// TAL VEZ EXCEPCION
+			string message_error = "La sala " + id_sala + 
+				" no existe en el sistema.";
+			// throw excepcion
+			throw ArchivoEntradaError(message_error);
 		}
 		
 		map<string, Pelicula>::iterator it_peliculas = peliculas.find(titulo);
 		if (it_peliculas == peliculas.end()) {
-			cerr << 
-			"La película " << titulo << " no existe en el sistema." 
-			<< endl;
-			// TAL VEZ EXCEPCION
+			string message_error = "La película " + titulo + 
+				" no existe en el sistema.";
+			// throw excepcion
+			throw ArchivoEntradaError(message_error);
 		}
 			
 		Funcion funcion(to_string(id_funcion), it_salas->second, 
-		it_peliculas->second, fecha, hora);
+			it_peliculas->second, fecha, hora);
 			
-		funcion_segun_fecha.emplace(fecha, funcion);
-		funcion_segun_id.emplace(to_string(id_funcion), funcion);
+		funciones->emplace_funcion(to_string(id_funcion), funcion);
 			
 		id_funcion++;
 	}
-	
-	clasificacion.emplace_back(funcion_segun_fecha);
-	clasificacion.emplace_back(funcion_segun_id);
-	
-	return clasificacion;
 }
 
 
@@ -152,7 +149,6 @@ int main(int argc, char* argv []) {
 	fstream archivo_peliculas((const char*)argv[POS_PELICULAS], fstream::in);
 	if (archivo_peliculas.fail()) {
 		cerr << "El archivo " << argv[POS_PELICULAS] << " no existe." << endl;
-		archivo_salas.close();
 		return ERROR_PARAMETROS;
 	}
 	
@@ -160,8 +156,6 @@ int main(int argc, char* argv []) {
 	fstream archivo_funciones((const char*)argv[POS_FUNCIONES], fstream::in);
 	if (archivo_funciones.fail()) {
 		cerr << "El archivo " << argv[POS_FUNCIONES] << " no existe." << endl;
-		archivo_salas.close();
-		archivo_peliculas.close();
 		return ERROR_PARAMETROS;
 	}
 	
@@ -172,26 +166,37 @@ int main(int argc, char* argv []) {
 	vector<multimap<string, Pelicula>> clasificacion_peliculas = 
 		clasificar_peliculas(archivo_peliculas);
 		
-	// Parseo el archivo de funciones.	
-	vector<multimap<string, Funcion>> clasificacion_funciones =
-		clasificar_funciones(archivo_funciones, clasificacion_salas, 
-		clasificacion_peliculas[3]);
+	// Parseo el archivo de funciones.
+	FuncionesProtected clasificacion_funciones;	
+	try {
+		clasificar_funciones(&clasificacion_funciones,
+			archivo_funciones, clasificacion_salas, clasificacion_peliculas[3]);
+	} catch (const ArchivoEntradaError& e) {
+		cerr << e.what() << endl;
+		return ERROR_ARCHIVOS;
+	}
 	
 	// creo el socket que escucha clientes nuevos.
 	Socket main_socket;
-	main_socket.bind_and_listen(argv[POS_PORT]);
-	// EXCEPCION SI ALGO SALE MAL DEL SOCKET
-	
+	try {
+		main_socket.bind_and_listen(argv[POS_PORT]);
+	} catch (const SocketError& e) {
+		e.what();
+		return ERROR_SOCKET;
+	} 
+		
+	// creo el hilo que va a aceptar conexiones de clientesy lo lanzo
 	Multi_Client_Acceptor thread_acceptor(main_socket, 
 		clasificacion_peliculas, clasificacion_funciones);
 	thread_acceptor.start();
 	
-	// leo el std::cin. Si recibo una q -> paro el thread_acceptor y lo joineo
+	// leo por entrada estandar std::cin 
 	char input;
 	while (true) {
 		input = cin.get();
 		if (input == END_APP) {
-			thread_acceptor.stop();
+			// recibí END_APP. Freno el hilo que acepta nuevos clientes y joineo
+			thread_acceptor.frenar();
 			thread_acceptor.join();
 			break;
 		}

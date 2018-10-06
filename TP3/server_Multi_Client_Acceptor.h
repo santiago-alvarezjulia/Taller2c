@@ -6,23 +6,24 @@
 #include "server_ThreadServer.h"
 #include "server_Funcion.h"
 #include "server_Pelicula.h"
+#include "server_FuncionesProtected.h"
 #include <map>
 #include <string>
 #include <vector>
 
 class Multi_Client_Acceptor : public Thread {
 	Socket socket_aceptador;
-	std::vector<std::multimap<std::string, Pelicula>> peliculas;
-	std::vector<std::multimap<std::string, Funcion>> funciones;
-	std::vector<ThreadServer> threads;
-	bool is_alive;
+	std::vector<std::multimap<std::string, Pelicula>>& peliculas;
+	FuncionesProtected& funciones;
+	std::vector<ThreadServer*> threads;
+	bool esta_vivo;
 	
 	public:
 		Multi_Client_Acceptor(Socket& socket, std::vector
 			<std::multimap<std::string, Pelicula>>& peliculas, 
-			std::vector<std::multimap<std::string, Funcion>>& funciones);
+			FuncionesProtected& funciones);
 		virtual void run();
-		void stop();
+		void frenar();
 		~Multi_Client_Acceptor();
 };
 

@@ -8,17 +8,21 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <iostream>
+#include <string>
 #include "common_socket.h"
+#include "common_SocketError.h"
 #define OK 0
 #define ERROR -1
 #define MAX_CLIENTS_WAITING 10
+using std::string;
 
 
 Socket::Socket() {
 	int sock = socket(AF_INET, SOCK_STREAM, 0);  
 	if (sock < 0) {
-		fprintf(stderr, "Error: %s\n", strerror(errno));
-		// excepcion
+		// throw excepcion SocketError
+		string message_error = "Error: " + string(strerror(errno));
+		throw SocketError(message_error);
 	}
 	this->socket_fd = sock;
 }
@@ -34,18 +38,19 @@ Socket::Socket(Socket&& other) {
 }
 
 
-int Socket::connect_(const char* hostname, const char* port) {
+void Socket::connect_(const char* hostname, const char* port) {
 	struct sockaddr_in client;  
 
 	client.sin_family = AF_INET;
 	client.sin_port = htons((uint16_t)atoi(port)); 
 	client.sin_addr.s_addr = inet_addr(hostname);  
 	
-	if (connect(this->socket_fd, (struct sockaddr *)&client, sizeof(client)) < 0) {
-		fprintf(stderr, "Error: %s\n", strerror(errno));
-		return ERROR;
+	if (connect(this->socket_fd, (struct sockaddr *)&client, 
+		sizeof(client)) < 0) {
+		// throw excepcion SocketError
+		string message_error = "Error: " + string(strerror(errno));
+		throw SocketError(message_error);
 	}
-    return OK;
 }
 
 
@@ -73,7 +78,7 @@ int Socket::send_(unsigned char* chunk, int sizeof_chunk) {
 }
 
 	
-int Socket::bind_and_listen(const char* port) {
+void Socket::bind_and_listen(const char* port) {
 	int val = 1;
 	setsockopt(this->socket_fd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
 	
@@ -89,23 +94,26 @@ int Socket::bind_and_listen(const char* port) {
 	
 	s = bind(this->socket_fd, result->ai_addr, result->ai_addrlen);
 	if (s == -1) {
-		fprintf(stderr,"Error : %s\n", strerror(errno));
-		return ERROR;
+		// throw excepcion SocketError
+		string message_error = "Error: " + string(strerror(errno));
+		throw SocketError(message_error);
 	}
 	freeaddrinfo(result);
 	
 	s = listen(this->socket_fd, MAX_CLIENTS_WAITING);
 	if (s == -1) {
-		fprintf(stderr,"Error : %s\n", strerror(errno));
-		return ERROR;
+		// throw excepcion SocketError
+		string message_error = "Error: " + string(strerror(errno));
+		throw SocketError(message_error);
 	}
-	return OK;
 }
 
 Socket Socket::accept_(){
 	int s = accept(this->socket_fd, NULL, NULL);
 	if (s < 0) {
-		// excepcion
+		// throw excepcion SocketError
+		string message_error = "Error: " + string(strerror(errno));
+		throw SocketError(message_error);
 	}
 	return std::move(Socket(s));
 }
@@ -119,7 +127,7 @@ int Socket::receive_(unsigned char* chunk, int sizeof_chunk) {
 	
 	while(bytes_recibidos < sizeof_chunk && is_valid_socket && is_open_socket) {
 		s = recv(this->socket_fd, &chunk[bytes_recibidos], 
-		sizeof_chunk - bytes_recibidos, 0);
+			sizeof_chunk - bytes_recibidos, 0);
 		if (s < 0) {
 			is_valid_socket = false;
 		} else if (s == 0) {

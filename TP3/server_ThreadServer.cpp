@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <utility>
 #define FUNCTION_GENERO '1'
 #define FUNCTION_IDIOMA '2'
 #define FUNCTION_EDAD '3'
@@ -19,28 +20,30 @@ using std::vector;
 using std::multimap;
 using std::cout;
 using std::endl;
+using std::map;
 
  
 ThreadServer::ThreadServer(Socket& socket, 
 	std::vector<std::multimap<std::string, Pelicula>>& peliculas, 
-	std::vector<std::multimap<std::string, Funcion>>& funciones) : 
+	FuncionesProtected* funciones) : 
 	socket(std::move(socket)), peliculas(peliculas), funciones(funciones) {
-	this->is_alive = true;
+	this->esta_vivo = true;
 }
 
 ThreadServer::ThreadServer(ThreadServer&& other) : 
 	socket(std::move(other.socket)), peliculas(other.peliculas), 
 	funciones(other.funciones) {
-	this->is_alive = other.is_alive;
+	this->esta_vivo = other.esta_vivo;
 }
 
 void ThreadServer::run() {
-	while (this->is_alive) {
+	while (this->esta_vivo) {
+		// recibo cual es la funcion/comando que pide el cliente
 		unsigned char function;
 		int i = this->socket.receive_(&function, sizeof(unsigned char));
 		if (i == 0) {
 			// cerro el socket el cliente -> se termina la transmision de datos
-			return;
+			break;
 		}
 	
 		if (function == FUNCTION_GENERO) {
@@ -57,7 +60,8 @@ void ThreadServer::run() {
 			asientos();
 		}
 	}
-	this->is_alive = false;
+	// finalizo la ejecucion del hilo
+	this->esta_vivo = false;
 }
 
 void ThreadServer::send_genero_idioma_edad(
@@ -70,21 +74,43 @@ void ThreadServer::send_genero_idioma_edad(
 	string data(len_data, '0');
 	this->socket.receive_((unsigned char*) data.c_str(), len_data);
 	
+	// iteradores que me indican los limites del rango en el cual la clave 
+	// del multimap es data
 	std::pair<multimap<string, Pelicula>::iterator, 
 		multimap<string, Pelicula>::iterator> ret;
     ret = peliculas_segun_data.equal_range(data);
-    for (multimap<string, Pelicula>::iterator it = ret.first; it != ret.second; 
-		++it) {
-		string titulo_pelicula = it->second.getTitulo();
-		unsigned int len_titulo_pelicula = titulo_pelicula.size();
-		this->socket.send_((unsigned char*)&len_titulo_pelicula, 
+    
+    // verifico que al menos haya una coincidencia
+    if (ret.first != ret.second) {
+		// hay al menos 1 coincidencia
+		// envio un unsigned int que indica que la operacion es válida
+		unsigned int operacion_valida = 0;
+		this->socket.send_((unsigned char*)&operacion_valida, 
 			sizeof(unsigned int));
-		this->socket.send_((unsigned char*)titulo_pelicula.c_str(), 
-			len_titulo_pelicula);
+		
+		// recorro en el multimap solo las claves que coinciden
+		for (multimap<string, Pelicula>::iterator it = ret.first; 
+			it != ret.second; ++it) {
+			// envio longitud del titulo y el titulo
+			string titulo_pelicula = it->second.getTitulo();
+			unsigned int len_titulo_pelicula = titulo_pelicula.size();
+			this->socket.send_((unsigned char*)&len_titulo_pelicula, 
+				sizeof(unsigned int));
+			this->socket.send_((unsigned char*)titulo_pelicula.c_str(), 
+				len_titulo_pelicula);
+		}
+		
+		// fin envio titulos de peliculas
+		unsigned int fin_envio_socket = FIN_ENVIO_SOCKET;
+		this->socket.send_((unsigned char*)&fin_envio_socket, 
+			sizeof(unsigned int));
+	} else {
+		// no hay coincidencias
+		// envio un unsigned int que indica que la operacion es inválida
+		unsigned int operacion_invalida = 1;
+		this->socket.send_((unsigned char*)&operacion_invalida, 
+			sizeof(unsigned int));
 	}
-	// fin envio titulos de peliculas
-	unsigned int fin_envio_socket = FIN_ENVIO_SOCKET;
-	this->socket.send_((unsigned char*)&fin_envio_socket, sizeof(unsigned int));
 }
 
 void ThreadServer::send_funciones_dia() {
@@ -96,51 +122,9 @@ void ThreadServer::send_funciones_dia() {
 	string fecha(len_fecha, '0');
 	this->socket.receive_((unsigned char*)fecha.c_str(), len_fecha);
 	
-	std::pair<multimap<string, Funcion>::iterator, 
-		multimap<string, Funcion>::iterator> ret;
-    ret = this->funciones[0].equal_range(fecha);
-    for (multimap<string, Funcion>::iterator it = ret.first; it != ret.second; 
-		++it) {
-		// mando el id de la funcion
-		string id_funcion = it->second.getId();
-		unsigned int len_id_funcion = id_funcion.size();
-		this->socket.send_((unsigned char*)&len_id_funcion, 
-			sizeof(unsigned int));
-		this->socket.send_((unsigned char*)id_funcion.c_str(), len_id_funcion);
-		
-		// mando el titulo de la pelicula de la funcion
-		string titulo_pelicula = it->second.getTitulo();
-		unsigned int len_titulo_pelicula = titulo_pelicula.size();
-		this->socket.send_((unsigned char*)&len_titulo_pelicula, 
-			sizeof(unsigned int));
-		this->socket.send_((unsigned char*)titulo_pelicula.c_str(), 
-			len_titulo_pelicula);
-		
-		// mando el id de la sala de la funcion
-		string id_sala = it->second.getIdSala();
-		unsigned int len_id_sala = id_sala.size();
-		this->socket.send_((unsigned char*)&len_id_sala, sizeof(unsigned int));
-		this->socket.send_((unsigned char*)id_sala.c_str(), len_id_sala);
-		
-		// mando la hora de la pelicula
-		string hora = it->second.getHora();
-		unsigned int len_hora = hora.size();
-		this->socket.send_((unsigned char*)&len_hora, sizeof(unsigned int));
-		this->socket.send_((unsigned char*)hora.c_str(), len_hora);
-		
-		bool esta_agotada_funcion = it->second.esta_agotada();
-		string estado_funcion;
-		if (esta_agotada_funcion) {
-			estado_funcion = "AGOTADA";
-		} else {
-			estado_funcion = "NO AGOTADA";
-		}
-		unsigned int len_estado_funcion = estado_funcion.size();
-		this->socket.send_((unsigned char*)&len_estado_funcion, 
-			sizeof(unsigned int));
-		this->socket.send_((unsigned char*)estado_funcion.c_str(), 
-			len_estado_funcion);
-	}
+	// delego el envio de las funciones de la fecha
+	this->funciones->send_funciones_dia(fecha, this->socket);
+	
 	// fin envio funciones de la fecha
 	unsigned int fin_envio_socket = FIN_ENVIO_SOCKET;
 	this->socket.send_((unsigned char*)&fin_envio_socket, sizeof(unsigned int));
@@ -174,11 +158,9 @@ void ThreadServer::reservar_asiento() {
 	string columna(len_columna, '0');
 	this->socket.receive_((unsigned char*)columna.c_str(), len_columna);
 	
-	std::pair<multimap<string, Funcion>::iterator, 
-		multimap<string, Funcion>::iterator> ret;
-    ret = this->funciones[1].equal_range(id_funcion);
-    
-    bool reserva_completada = ret.first->second.reservarAsiento(fila, columna);
+	// delego la reserva del asiento
+	bool reserva_completada = this->funciones->reservar_asiento(id_funcion, 
+		fila, columna);
     if (reserva_completada) {
 		// se reservó el asiento correctamente
 		unsigned int reserva_correcta = 0;
@@ -202,51 +184,12 @@ void ThreadServer::asientos() {
 	string id_funcion(len_id_funcion, '0');
 	this->socket.receive_((unsigned char*)id_funcion.c_str(), len_id_funcion);
 	
-	std::pair<multimap<string, Funcion>::iterator, 
-		multimap<string, Funcion>::iterator> ret;
-    ret = this->funciones[1].equal_range(id_funcion);
-    
-    unsigned int cantidad_filas = ret.first->second.getCantidadFilas();
-    unsigned int cantidad_columnas = ret.first->second.getCantidadColumnas();
-    vector<vector<char>> asientos = ret.first->second.getAsientos();
-    
-    // envio la cantidad de columnas
-	this->socket.send_((unsigned char*)&cantidad_columnas, 
-		sizeof(unsigned int));
-		
-    // envio la cantidad de filas
-	this->socket.send_((unsigned char*)&cantidad_filas, sizeof(unsigned int));
-    
-    // envio el resto de las filas que representan asientos
-    string fila = "";
-    int col = 0;
-	string columnas_posibles = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-	for (vector<vector<char>>::iterator it = asientos.begin(); 
-		it != asientos.end(); ++it) {
-		fila += columnas_posibles[col];
-		for (std::vector<char>::iterator it2 = (*it).begin(); 
-			it2 != (*it).end(); ++it2) {
-			fila += '\t',
-			fila += *it2;
-		}
-		
-		// envio la fila
-		unsigned int len_fila = fila.size();
-		this->socket.send_((unsigned char*)&len_fila, sizeof(unsigned int));
-		this->socket.send_((unsigned char*)fila.c_str(), len_fila);
-			
-		col++;
-		fila = "";
-	}
-    
+	// delego en server_FuncionesProtected
+	this->funciones->asientos(id_funcion, this->socket);
 }
 
-void ThreadServer::stop() {
-	this->is_alive = false;
-}
-
-bool ThreadServer::has_ended() {
-	return !this->is_alive;
+bool ThreadServer::ha_terminado() {
+	return !this->esta_vivo;
 }
 
 ThreadServer::~ThreadServer() {

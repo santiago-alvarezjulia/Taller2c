@@ -23,6 +23,7 @@ class Funcion {
 		std::string getIdSala();
 		std::string getTitulo();
 		std::string getHora();
+		std::string getFecha();
 		int getCantidadFilas();
 		int getCantidadColumnas();
 		std::vector<std::vector<char>> getAsientos();
