@@ -8,7 +8,7 @@ class SocketError : public std::exception {
 	std::string message_error;
 
 	public:
-		SocketError(std::string message_error) noexcept;
+		explicit SocketError(std::string message_error) noexcept;
 		virtual const char* what() const noexcept;
 		virtual ~SocketError() noexcept;
 };

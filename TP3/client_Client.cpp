@@ -14,7 +14,7 @@ using std::endl;
 
 Client::Client(Socket& socket_client, char* hostname, char* port) : 
 	socket(std::move(socket_client)) {
-	this->socket.connect_(hostname, port); //CONNECT LANZA EXCEPCION (creo que igual así anda)
+	this->socket.connect_(hostname, port); // puede lanzar SocketError
 }
 
 void Client::recibo_idioma_edad_genero(unsigned char function, string data) {

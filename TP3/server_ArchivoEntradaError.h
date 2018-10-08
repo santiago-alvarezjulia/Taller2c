@@ -8,7 +8,7 @@ class ArchivoEntradaError : public std::exception {
 	std::string message_error;
 
 	public:
-		ArchivoEntradaError(std::string message_error) noexcept;
+		explicit ArchivoEntradaError(std::string message_error) noexcept;
 		virtual const char* what() const noexcept;
 		virtual ~ArchivoEntradaError() noexcept;
 };

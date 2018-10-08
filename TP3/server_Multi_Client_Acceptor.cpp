@@ -4,6 +4,7 @@
 #include "server_Funcion.h"
 #include "server_Pelicula.h"
 #include "common_socket.h"
+#include "common_SocketError.h"
 #include <vector>
 #include <string>
 #include <map>
@@ -25,14 +26,17 @@ Multi_Client_Acceptor::Multi_Client_Acceptor(Socket& socket,
 void Multi_Client_Acceptor::run() {
 	while (this->esta_vivo) {
 		// mientras este vivo, sigo aceptando clientes.
-		Socket asoc = this->socket_aceptador.accept_();
-		if (!this->esta_vivo) {
-			// se cerro la conexion del socket aceptador
+		try {
+			// accept_() puede lanzar SocketError
+			Socket asoc = this->socket_aceptador.accept_();
+			
+			this->threads.push_back(new ThreadServer(asoc, this->peliculas, 
+			&this->funciones));
+			this->threads[this->threads.size() - 1]->start();
+		} catch (const SocketError& e) {
+			// no printeo e.what para que no fallen las pruebas en sercom
 			break;
 		}
-		this->threads.push_back(new ThreadServer(asoc, this->peliculas, 
-			&this->funciones));
-		this->threads[this->threads.size() - 1]->start();
 		
 		for (size_t i = 0; i < this->threads.size(); i++) {
 			if (this->threads[i]->ha_terminado()) {

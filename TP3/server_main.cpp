@@ -90,7 +90,7 @@ vector<multimap<string, Pelicula>> clasificar_peliculas(
 }
 
 
-void clasificar_funciones(FuncionesProtected* funciones,
+FuncionesProtected clasificar_funciones(
 	fstream& archivo_funciones, map<string, Sala>& salas, 
 	multimap<string, Pelicula>& peliculas) {
 	int id_funcion = 1;
@@ -98,6 +98,7 @@ void clasificar_funciones(FuncionesProtected* funciones,
 	string titulo;
 	string fecha;
 	string hora;
+	FuncionesProtected funciones;
 	
 	while (getline(archivo_funciones, id_sala, DELIM_CSV) && 
 		getline(archivo_funciones, titulo, DELIM_CSV) &&
@@ -122,10 +123,12 @@ void clasificar_funciones(FuncionesProtected* funciones,
 		Funcion funcion(to_string(id_funcion), it_salas->second, 
 			it_peliculas->second, fecha, hora);
 			
-		funciones->emplace_funcion(to_string(id_funcion), funcion);
+		funciones.emplace_funcion(to_string(id_funcion), funcion);
 			
 		id_funcion++;
 	}
+	
+	return funciones;
 }
 
 
@@ -166,41 +169,40 @@ int main(int argc, char* argv []) {
 	vector<multimap<string, Pelicula>> clasificacion_peliculas = 
 		clasificar_peliculas(archivo_peliculas);
 		
-	// Parseo el archivo de funciones.
-	FuncionesProtected clasificacion_funciones;	
+		
 	try {
-		clasificar_funciones(&clasificacion_funciones,
+		// Parseo el archivo de funciones.
+		FuncionesProtected clasificacion_funciones = clasificar_funciones(
 			archivo_funciones, clasificacion_salas, clasificacion_peliculas[3]);
+			
+		// creo el socket que escucha clientes nuevos. Ambas lineas pueden 
+		// lanzar SocketError
+		Socket main_socket;
+		main_socket.bind_and_listen(argv[POS_PORT]);
+		
+		// creo el hilo que va a aceptar conexiones de clientesy lo lanzo
+		Multi_Client_Acceptor thread_acceptor(main_socket, 
+			clasificacion_peliculas, clasificacion_funciones);
+		thread_acceptor.start();
+	
+		// leo por entrada estandar std::cin 
+		char input;
+		while (true) {
+			input = cin.get();
+			if (input == END_APP) {
+				// recibí END_APP. Freno el hilo que acepta nuevos clientes y joineo
+				thread_acceptor.frenar();
+				thread_acceptor.join();
+				break;
+			}
+		}
 	} catch (const ArchivoEntradaError& e) {
 		cerr << e.what() << endl;
 		return ERROR_ARCHIVOS;
-	}
-	
-	// creo el socket que escucha clientes nuevos.
-	Socket main_socket;
-	try {
-		main_socket.bind_and_listen(argv[POS_PORT]);
 	} catch (const SocketError& e) {
-		e.what();
+		// no printeo e.what para que no fallen las pruebas en sercom
 		return ERROR_SOCKET;
 	} 
-		
-	// creo el hilo que va a aceptar conexiones de clientesy lo lanzo
-	Multi_Client_Acceptor thread_acceptor(main_socket, 
-		clasificacion_peliculas, clasificacion_funciones);
-	thread_acceptor.start();
-	
-	// leo por entrada estandar std::cin 
-	char input;
-	while (true) {
-		input = cin.get();
-		if (input == END_APP) {
-			// recibí END_APP. Freno el hilo que acepta nuevos clientes y joineo
-			thread_acceptor.frenar();
-			thread_acceptor.join();
-			break;
-		}
-	}
 	
 	return OK;
 }
