@@ -13,6 +13,9 @@ void Thread::start() {
 	this->thread = std::thread(&Thread::run, this);
 }
 
+bool Thread::joinable() {
+	return this->thread.joinable();
+}
 
 void Thread::join() {
 	this->thread.join();

@@ -10,6 +10,7 @@ class Thread {
 		Thread() {}
 		void start();
 		void join();
+		bool joinable();
 
 		virtual void run() = 0;
 		virtual ~Thread() {}

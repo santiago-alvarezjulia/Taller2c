@@ -20,7 +20,7 @@ Multi_Client_Acceptor::Multi_Client_Acceptor(Socket& socket,
 	socket_aceptador(std::move(socket)), peliculas(peliculas), 
 	funciones(funciones) {
 	this->esta_vivo = true;
-	this->threads = vector<ThreadServer*>();
+	this->threads = vector<ThreadServer>();
 }
 
 void Multi_Client_Acceptor::run() {
@@ -30,20 +30,20 @@ void Multi_Client_Acceptor::run() {
 			// accept_() puede lanzar SocketError
 			Socket asoc = this->socket_aceptador.accept_();
 			
-			this->threads.push_back(new ThreadServer(asoc, this->peliculas, 
-			&this->funciones));
-			this->threads[this->threads.size() - 1]->start();
+			// antes elimino los threads que ya hayan finalizado su ejecucion
+			for (size_t i = 0; i < this->threads.size(); i++) {
+				if (this->threads[i].ha_terminado() && 
+					this->threads[i].joinable()) {
+					this->threads[i].join();
+				}
+			}
+		
+			this->threads.emplace_back(ThreadServer(asoc, this->peliculas, 
+				&this->funciones));
+			this->threads[this->threads.size() - 1].start();
 		} catch (const SocketError& e) {
 			// no printeo e.what para que no fallen las pruebas en sercom
 			break;
-		}
-		
-		for (size_t i = 0; i < this->threads.size(); i++) {
-			if (this->threads[i]->ha_terminado()) {
-				this->threads[i]->join();
-				delete this->threads[i];
-				this->threads.erase(this->threads.begin() + i);
-			}
 		}
 	}
 }
@@ -56,7 +56,8 @@ void Multi_Client_Acceptor::frenar() {
 
 Multi_Client_Acceptor::~Multi_Client_Acceptor() {
 	for (size_t i = 0; i < this->threads.size(); i++) {
-		this->threads[i]->join();
-		delete this->threads[i];
+		if (this->threads[i].joinable()) {
+			this->threads[i].join();
+		}
 	}
 }

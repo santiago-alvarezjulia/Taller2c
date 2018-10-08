@@ -15,7 +15,7 @@ class Multi_Client_Acceptor : public Thread {
 	Socket socket_aceptador;
 	std::vector<std::multimap<std::string, Pelicula>>& peliculas;
 	FuncionesProtected& funciones;
-	std::vector<ThreadServer*> threads;
+	std::vector<ThreadServer> threads;
 	bool esta_vivo;
 	
 	public:
