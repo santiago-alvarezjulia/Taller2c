@@ -14,7 +14,7 @@ class ThreadServer : public Thread {
 	Socket socket;
 	bool esta_vivo;
 	std::vector<std::multimap<std::string, Pelicula>> peliculas;
-	FuncionesProtected* funciones;
+	FuncionesProtected& funciones;
 	void send_genero_idioma_edad(
 		std::multimap<std::string, Pelicula>& peliculas_segun_data);
 	void send_funciones_dia();
@@ -24,7 +24,7 @@ class ThreadServer : public Thread {
 	public:
 		ThreadServer(Socket& socket, 
 			std::vector<std::multimap<std::string, Pelicula>>& peliculas, 
-			FuncionesProtected* funciones);
+			FuncionesProtected& funciones);
 		ThreadServer(ThreadServer&& other); 
 		virtual void run();
 		bool ha_terminado();

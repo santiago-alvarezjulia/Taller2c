@@ -37,9 +37,8 @@ int main(int argc, char* argv []) {
 	}
 	
 	try {
-		// Ambas lineas pueden lanzar SocketError
-		Socket socket_client;
-		Client cliente(socket_client, argv[POS_HOSTNAME], argv[POS_PORT]);
+		// Puede lanzar SocketError
+		Client cliente(argv[POS_HOSTNAME], argv[POS_PORT]);
 		
 		string comando;
 		string data;

@@ -24,9 +24,9 @@ Multi_Client_Acceptor::Multi_Client_Acceptor(Socket& socket,
 }
 
 void Multi_Client_Acceptor::run() {
-	while (this->esta_vivo) {
+	try {
 		// mientras este vivo, sigo aceptando clientes.
-		try {
+		while (this->esta_vivo) {
 			// accept_() puede lanzar SocketError
 			Socket asoc = this->socket_aceptador.accept_();
 			
@@ -39,12 +39,11 @@ void Multi_Client_Acceptor::run() {
 			}
 		
 			this->threads.emplace_back(ThreadServer(asoc, this->peliculas, 
-				&this->funciones));
+				this->funciones));
 			this->threads[this->threads.size() - 1].start();
-		} catch (const SocketError& e) {
-			// no printeo e.what para que no fallen las pruebas en sercom
-			break;
 		}
+	} catch (const SocketError& e) {
+		// no printeo e.what para que no fallen las pruebas en sercom
 	}
 }
 

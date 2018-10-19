@@ -13,11 +13,11 @@ class FuncionesProtected {
 	
 	public:
 		FuncionesProtected();
-		void emplace_funcion(std::string id_funcion, Funcion& funcion);
-		void send_funciones_dia(std::string fecha, Socket& socket);
-		bool reservar_asiento(std::string id_funcion, std::string fila,
-			std::string columna);
-		void asientos(std::string, Socket& socket); 
+		void agregar_funcion(std::string& id_funcion, Funcion& funcion);
+		void send_funciones_dia(std::string& fecha, Socket& socket);
+		bool reservar_asiento(std::string& id_funcion, std::string& fila,
+			std::string& columna);
+		void asientos(std::string& id_funcion, Socket& socket); 
 		~FuncionesProtected();
 };
 

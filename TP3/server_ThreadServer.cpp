@@ -25,13 +25,13 @@ using std::map;
  
 ThreadServer::ThreadServer(Socket& socket, 
 	std::vector<std::multimap<std::string, Pelicula>>& peliculas, 
-	FuncionesProtected* funciones) : 
+	FuncionesProtected& funciones) : 
 	socket(std::move(socket)), peliculas(peliculas), funciones(funciones) {
 	this->esta_vivo = true;
 }
 
 ThreadServer::ThreadServer(ThreadServer&& other) : 
-	socket(std::move(other.socket)), peliculas(other.peliculas), 
+	socket(std::move(other.socket)), peliculas(std::move(other.peliculas)), 
 	funciones(other.funciones) {
 	this->esta_vivo = other.esta_vivo;
 }
@@ -46,19 +46,30 @@ void ThreadServer::run() {
 			break;
 		}
 	
-		if (function == FUNCTION_GENERO) {
-			send_genero_idioma_edad(this->peliculas[2]);
-		} else if (function == FUNCTION_IDIOMA) {
-			send_genero_idioma_edad(this->peliculas[0]);
-		} else if (function == FUNCTION_EDAD) {
-			send_genero_idioma_edad(this->peliculas[1]);
-		} else if (function == FUNCTION_FUNCIONES_DIA) {
-			send_funciones_dia();
-		} else if (function == FUNCTION_RESERVA) {
-			reservar_asiento();
-		} else if (function == FUNCTION_ASIENTOS) {
-			asientos();
+		switch (function) {
+			case FUNCTION_GENERO:
+				// vector[2] -> multimap con clave genero y valor pelicula
+				send_genero_idioma_edad(this->peliculas[2]);
+				break;
+			case FUNCTION_IDIOMA:
+				// vector[0] -> multimap con clave idioma y valor pelicula
+				send_genero_idioma_edad(this->peliculas[0]);
+				break;
+			case FUNCTION_EDAD:
+				// vector[1] -> multimap con clave edad y valor pelicula
+				send_genero_idioma_edad(this->peliculas[1]);
+				break;
+			case FUNCTION_FUNCIONES_DIA:
+				send_funciones_dia();
+				break;
+			case FUNCTION_RESERVA:
+				reservar_asiento();
+				break;
+			case FUNCTION_ASIENTOS:
+				asientos();
+				break;
 		}
+		
 	}
 	// finalizo la ejecucion del hilo
 	this->esta_vivo = false;
@@ -123,7 +134,7 @@ void ThreadServer::send_funciones_dia() {
 	this->socket.receive_((unsigned char*)fecha.c_str(), len_fecha);
 	
 	// delego el envio de las funciones de la fecha
-	this->funciones->send_funciones_dia(fecha, this->socket);
+	this->funciones.send_funciones_dia(fecha, this->socket);
 	
 	// fin envio funciones de la fecha
 	unsigned int fin_envio_socket = FIN_ENVIO_SOCKET;
@@ -159,7 +170,7 @@ void ThreadServer::reservar_asiento() {
 	this->socket.receive_((unsigned char*)columna.c_str(), len_columna);
 	
 	// delego la reserva del asiento
-	bool reserva_completada = this->funciones->reservar_asiento(id_funcion, 
+	bool reserva_completada = this->funciones.reservar_asiento(id_funcion, 
 		fila, columna);
     if (reserva_completada) {
 		// se reservó el asiento correctamente
@@ -185,7 +196,7 @@ void ThreadServer::asientos() {
 	this->socket.receive_((unsigned char*)id_funcion.c_str(), len_id_funcion);
 	
 	// delego en server_FuncionesProtected
-	this->funciones->asientos(id_funcion, this->socket);
+	this->funciones.asientos(id_funcion, this->socket);
 }
 
 bool ThreadServer::ha_terminado() {

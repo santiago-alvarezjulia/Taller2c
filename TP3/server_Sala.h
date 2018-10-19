@@ -10,10 +10,10 @@ class Sala {
 	int cantidad_columnas;
 	
 	public:
-		Sala(std::string id, std::string pantalla, std::string capacidad);
-		std::string getId();
-		int getCantidadFilas();
-		int getCantidadColumnas();
+		Sala(std::string& id, std::string& pantalla, std::string& capacidad);
+		const std::string& getId() const;
+		int getCantidadFilas() const;
+		int getCantidadColumnas() const;
 		~Sala();	
 };
 

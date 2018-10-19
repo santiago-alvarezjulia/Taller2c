@@ -10,9 +10,9 @@ class Pelicula {
 	std::string genero;
 	
 	public:
-		Pelicula(std::string titulo, std::string idioma, std::string edad, 
-			std::string genero);
-		std::string getTitulo();
+		Pelicula(std::string& titulo, std::string& idioma, std::string& edad, 
+			std::string& genero);
+		const std::string& getTitulo() const;
 		~Pelicula();	
 };
 

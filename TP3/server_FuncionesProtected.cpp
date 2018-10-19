@@ -15,13 +15,13 @@ FuncionesProtected::FuncionesProtected() {
 	this->mutex_funciones = map<string, mutex*>();
 }
 
-void FuncionesProtected::emplace_funcion(string id_funcion, 
+void FuncionesProtected::agregar_funcion(string& id_funcion, 
 	Funcion& funcion) {
 	this->funciones.emplace(id_funcion, funcion);	
 	this->mutex_funciones.emplace(id_funcion, new mutex());
 }
 
-void FuncionesProtected::send_funciones_dia(string fecha, Socket& socket) {
+void FuncionesProtected::send_funciones_dia(string& fecha, Socket& socket) {
 	// recorro las funciones, si no son del dia, las descarto
     for (map<string, Funcion>::iterator it = this->funciones.begin(); 
 		it != this->funciones.end(); ++it) {
@@ -75,8 +75,8 @@ void FuncionesProtected::send_funciones_dia(string fecha, Socket& socket) {
 	}
 }
 
-bool FuncionesProtected::reservar_asiento(string id_funcion, string fila, 
-	string columna) {
+bool FuncionesProtected::reservar_asiento(string& id_funcion, string& fila, 
+	string& columna) {
 	// Lockeo el mutex segun el id
 	Lock(*this->mutex_funciones.at(id_funcion));
 	
@@ -86,7 +86,7 @@ bool FuncionesProtected::reservar_asiento(string id_funcion, string fila,
     return it->second.reservarAsiento(fila, columna);
 }
 
-void FuncionesProtected::asientos(string id_funcion, Socket& socket) {
+void FuncionesProtected::asientos(string& id_funcion, Socket& socket) {
 	// Lockeo el mutex segun el id
 	Lock(*this->mutex_funciones.at(id_funcion));
 	

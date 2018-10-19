@@ -1,0 +1,56 @@
+\documentclass[a4paper,12pt]{report}
+
+% Paquete para inclusion de graficos.
+\usepackage{graphicx}
+
+% Paquete para definir la codificacion del conjunto de caracteres usado
+% (latin1 es ISO 8859-1).
+\usepackage[latin1]{inputenc}
+
+% Paquete para definir el idioma usado.
+\usepackage[spanish]{babel}
+
+
+% Titulo principal del documento.
+\title{Reentrega TP2: Simulador de Cache}
+
+% Informacion sobre el autor.
+\author{Santiago Alvarez Juli\'a, \textit{Padr\'on Nro. 99522}                     \\
+            \normalsize{75.42 Taller de Programaci\'on}                             \\
+            \normalsize{Facultad de Ingenier\'ia, Universidad de Buenos Aires}            \\
+       }
+\date{Octubre 2018}
+
+
+\begin{document}
+
+% Inserta el titulo.
+\maketitle
+
+% Quita el numero en la primer pagina.
+\thispagestyle{empty}
+
+% Crea la tabla de contenidos o indice del informe
+\pagenumbering{roman}
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+
+% Aca arranca el cuerpo del informe
+\section{Introducci\'on}
+
+En esta reentrega del informe del TP2, explicar\'e como solucion\'e los errores que comet\'i en la primera entrega y algunas sugerencias que fueron propuestas por el corrector.
+
+\section{Main}
+
+Cambi\'e el parseo del archivo de configuraci\'on como suger\'ia el corrector, sabiendo que std::getline devuelve un file que tiene implementado el operador bool() que devuelve true si llego al final del archivo y false en caso contrario.  Pas\'e la determinaci\'on de cual hijo de Cache es el correcto al constructor de Cache\_Protected para que sea RAII (pido memoria al heap en el constructor y la libero en el destructor). Tambi\'en como sugiri\'o el corrector, guardo una referencia al std::map con la info del archivo de configuraci\'on en Cache (lo recibe como par\'ametro al construirse cuando una de sus clases hijas se contruye). Adem\'as cambi\'e la implementacion de ThreadCache (le agregu\'e el contructor por movimiento) para no utilizar el heap al lanzar los hilos.
+
+ \section{Cache}
+
+Elimin\'e los set\_data y pase lo que implementaban al constructor para que sea RAII. Ahora hice solamente virtual al m\'etodo process\_memory\_address ya que antes reimplementaba los m\'etods sin agregarle funcionalidad extra (lo cual estaba mal). En particular para el cache\_Associative\_Lru cambi\'e la implementacion del m\'etodo process\_memory\_address y uno de sus atributos, el std::map que ten\'ia como valores iteradores. Como me remarc\'o el corrector, anteriormente andaba de casualidad. Ahora el std::map tiene como valores boolean (no tienen uso, podr\'ia poner cualquier tipo ac\'a) por lo que averiguar si un tag genera HIT o MISS es O(log n) ya que utilizo el m\'etodo find de std::map. En el caso de que haya un HIT ahora tengo que recorrer la std::deque para poder borrarlo y volver a encolarlo, lo que tiene como orden de complejidad O(n) (siempre siendo n el tama\~no de la std::deque).
+
+ \section{FunctorCache}
+
+Para empezar le cambi\'e el nombre a thread\_Cache ya que por definici\'on 'FunctorCache' no es un functor ya que no define el m\'etodo operator () y podr\'ia confundir su nombre. Adem\'as ahora abro el archivo con las direcciones de memoria en su constructor (tambi\'en cambi\'e el flag que indicaba que dicho archivo era binario ya que en el enunciado estaba aclarado que \'este era un archivo de texto).
+
+\end{document}

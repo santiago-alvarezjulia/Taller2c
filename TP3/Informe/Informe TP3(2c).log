@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.9.25)  9 OCT 2018 16:44
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2018.9.25)  9 OCT 2018 16:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**"Informe TP2(2c).tex"
-(./Informe TP2(2c).tex
+**"Informe TP3(2c).tex"
+(./Informe TP3(2c).tex
 LaTeX2e <2017-04-15>
 Babel <3.18> and hyphenation patterns for 6 language(s) loaded.
 (/usr/share/texlive/texmf-dist/tex/latex/base/report.cls
@@ -80,11 +80,11 @@ Package babel Info: Making . an active character on input line 662.
 Package babel Info: Making < an active character on input line 707.
 Package babel Info: Making > an active character on input line 707.
 ))
-(./Informe TP2(2c).aux
+(./Informe TP3(2c).aux
 LaTeX Info: Redefining \. on input line 6.
 LaTeX Info: Redefining \% on input line 6.
 )
-\openout1 = `"Informe TP2(2c).aux"'.
+\openout1 = `"Informe TP3(2c).aux"'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 25.
 LaTeX Font Info:    ... okay on input line 25.
@@ -177,7 +177,7 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 
 [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./Informe TP2(2c).toc
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./Informe TP3(2c).toc
 LaTeX Info: Redefining \. on input line 1.
 LaTeX Info: Redefining \% on input line 1.
 LaTeX Font Info:    External font `cmex10' loaded for size
@@ -188,64 +188,70 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 (Font)              <6> on input line 2.
 )
 \tf@toc=\write3
-\openout3 = `"Informe TP2(2c).toc"'.
+\openout3 = `"Informe TP3(2c).toc"'.
 
 
 [1
 
-] [1]
-Underfull \hbox (badness 10000) in paragraph at lines 68--69
+]
+Overfull \hbox (2.77701pt too wide) in paragraph at lines 65--66
+[]\OT1/cmr/m/n/12 server[]Multi[]Client[]Acceptor: es un ob-je-to que he-re-da 
+de ser-ver[]Thread,
+ []
 
+[1] [2]
+Overfull \hbox (32.05171pt too wide) in paragraph at lines 110--111
+\OT1/cmr/m/n/12 en la par-te del ser-vi-dor. En ser-ver[]main se lan-za el hi-l
+o ser-ver[]Multi[]Client[]Acceptor
  []
 
 
-Overfull \hbox (1.43205pt too wide) in paragraph at lines 72--73
-[]\OT1/cmr/m/n/12 En am-bas im-ple-men-ta-cio-nes tam-bi^^Sen uti-li-zo el m^^S
-eto-do 'si-ze' de std::map
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 72--73
-
- []
-
-[2]
-Underfull \hbox (badness 10000) in paragraph at lines 90--91
+Underfull \hbox (badness 10000) in paragraph at lines 110--111
 
  []
 
 [3]
-<diagramaClasesCache.png, id=23, 275.8305pt x 60.7068pt>
-File: diagramaClasesCache.png Graphic file (type png)
-<use diagramaClasesCache.png>
-Package pdftex.def Info: diagramaClasesCache.png  used on input line 98.
-(pdftex.def)             Requested size: 426.79134pt x 93.93706pt.
+Underfull \hbox (badness 10000) in paragraph at lines 112--113
 
-Overfull \hbox (54.41615pt too wide) in paragraph at lines 98--99
-[][] 
  []
 
-[4 <./diagramaClasesCache.png (PNG copy)>] (./Informe TP2(2c).aux
+
+Underfull \hbox (badness 10000) in paragraph at lines 114--115
+
+ []
+
+[4]
+<servidor-multi-cliente.png, id=26, 551.4201pt x 302.0886pt>
+File: servidor-multi-cliente.png Graphic file (type png)
+<use servidor-multi-cliente.png>
+Package pdftex.def Info: servidor-multi-cliente.png  used on input line 119.
+(pdftex.def)             Requested size: 397.02217pt x 217.50362pt.
+
+Overfull \hbox (7.02217pt too wide) in paragraph at lines 119--120
+ [][] 
+ []
+
+[5 <./servidor-multi-cliente.png>] (./Informe TP3(2c).aux
 LaTeX Info: Redefining \. on input line 6.
 LaTeX Info: Redefining \% on input line 6.
 ) ) 
 Here is how much of TeX's memory you used:
- 2422 strings out of 494861
- 33728 string characters out of 6178804
- 97559 words of memory out of 5000000
- 5726 multiletter control sequences out of 15000+600000
+ 2417 strings out of 494861
+ 33676 string characters out of 6178804
+ 99553 words of memory out of 5000000
+ 5721 multiletter control sequences out of 15000+600000
  9755 words of font info for 34 fonts, out of 8000000 for 9000
  40 hyphenation exceptions out of 8191
- 41i,7n,30p,989b,359s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 41i,7n,30p,1222b,359s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></u
 sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmcsc10.pfb></usr/sh
 are/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/tex
 live/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texlive/te
 xmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb>
-Output written on "Informe TP2(2c).pdf" (6 pages, 87771 bytes).
+Output written on "Informe TP3(2c).pdf" (7 pages, 115401 bytes).
 PDF statistics:
- 44 PDF objects out of 1000 (max. 8388607)
- 29 compressed objects within 1 object stream
+ 49 PDF objects out of 1000 (max. 8388607)
+ 33 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  6 words of extra memory for PDF output out of 10000 (max. 10000000)
 

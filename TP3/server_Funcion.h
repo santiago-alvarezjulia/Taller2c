@@ -8,27 +8,27 @@
 
 class Funcion {
 	std::string id;
-	Sala sala;
-	Pelicula pelicula;
+	Sala& sala;
+	Pelicula& pelicula;
 	std::string fecha;
 	std::string hora;
 	std::vector<std::vector<char>> asientos;
 	int asientos_ocupados;
-	int fila_to_number(std::string fila);
+	int fila_to_number(char fila);
 	
 	public:
-		Funcion(std::string id, Sala sala, Pelicula pelicula, std::string fecha, 
-			std::string hora);
-		std::string getId();
-		std::string getIdSala();
-		std::string getTitulo();
-		std::string getHora();
-		std::string getFecha();
-		int getCantidadFilas();
-		int getCantidadColumnas();
-		std::vector<std::vector<char>> getAsientos();
-		bool esta_agotada();
-		bool reservarAsiento(std::string fila, std::string columna);
+		Funcion(std::string& id, Sala& sala, Pelicula& pelicula, 
+			std::string& fecha, std::string& hora);
+		const std::string& getId() const;
+		const std::string& getIdSala() const;
+		const std::string& getTitulo() const;
+		const std::string& getHora() const;
+		const std::string& getFecha() const;
+		int getCantidadFilas() const;
+		int getCantidadColumnas() const;
+		std::vector<std::vector<char>>& getAsientos();
+		bool esta_agotada() const;
+		bool reservarAsiento(std::string& fila, std::string& columna);
 		~Funcion();	
 };
 
