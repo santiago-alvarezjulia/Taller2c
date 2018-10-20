@@ -16,12 +16,13 @@ using std::cout;
 using std::endl;
 
 
-Multi_Client_Acceptor::Multi_Client_Acceptor(Socket& socket, 
+Multi_Client_Acceptor::Multi_Client_Acceptor(char* port, 
 	vector<multimap<string, Pelicula>>& peliculas, 
 	FuncionesProtected& funciones) : 
-	socket_aceptador(std::move(socket)), peliculas(peliculas), 
+	socket_aceptador(std::move(Socket())), peliculas(peliculas), 
 	funciones(funciones) {
 	this->esta_vivo = true;
+	this->socket_aceptador.bind_and_listen(port);
 	this->threads = vector<ThreadServer>();
 }
 

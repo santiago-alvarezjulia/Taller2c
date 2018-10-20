@@ -21,6 +21,7 @@
 #define ERROR_PARAMETROS 1
 #define ERROR_ARCHIVOS 2
 #define ERROR_SOCKET 3
+#define UNKNOWN_ERROR 4
 #define OK 0
 #define DELIM_CSV ','
 #define CANT_COLUMNAS_ARCHIVO_PELICULAS 4
@@ -111,7 +112,9 @@ int main(int argc, char* argv []) {
 	peliculas.emplace_back(std::move(pelicula_segun_genero));
 	peliculas.emplace_back(std::move(pelicula_segun_titulo));
 		
-		
+	// codigo de retorno que puede ser modificado en algun catch
+	int return_value = OK;
+
 	try {
 		// Parseo el archivo de funciones.
 		int id_funcion = 1;
@@ -149,15 +152,11 @@ int main(int argc, char* argv []) {
 			
 			id_funcion++;
 		}
-			
-		// creo el socket que escucha clientes nuevos. Ambas lineas pueden 
-		// lanzar SocketError
-		Socket main_socket;
-		main_socket.bind_and_listen(argv[POS_PORT]);
 		
 		// creo el hilo que va a aceptar conexiones de clientesy lo lanzo
-		Multi_Client_Acceptor thread_acceptor(main_socket, 
-			peliculas, funciones);
+		// puede lanzar SocketError
+		Multi_Client_Acceptor thread_acceptor(argv[POS_PORT], peliculas, 
+			funciones);
 		thread_acceptor.start();
 	
 		// leo por entrada estandar std::cin 
@@ -171,11 +170,17 @@ int main(int argc, char* argv []) {
 		thread_acceptor.join();
 	} catch (const ArchivoEntradaError& e) {
 		cerr << e.what() << endl;
-		return ERROR_ARCHIVOS;
+		return_value = ERROR_ARCHIVOS;
 	} catch (const SocketError& e) {
-		// no printeo e.what para que no fallen las pruebas en sercom
-		return ERROR_SOCKET;
-	} 
+		cerr << e.what() << endl;
+		return_value = ERROR_SOCKET;
+	} catch (const std::exception& e) {
+		cout << e.what() << endl;
+		return_value = UNKNOWN_ERROR;
+	} catch (...) {
+		cout << "Error desconocido" << endl;
+		return_value = UNKNOWN_ERROR;
+	}
 	
-	return OK;
+	return return_value;
 }

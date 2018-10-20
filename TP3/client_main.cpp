@@ -7,7 +7,7 @@
 #define OK 0
 #define ERROR 1
 #define SOCKET_ERROR 2
-#define UNKNOWN_ERROR 3
+#define UNKNOWN_ERROR 4
 #define POS_HOSTNAME 1
 #define POS_PORT 2
 #define DELIM_CIN ' '

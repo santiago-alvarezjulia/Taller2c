@@ -19,7 +19,7 @@ class Multi_Client_Acceptor : public Thread {
 	bool esta_vivo;
 	
 	public:
-		Multi_Client_Acceptor(Socket& socket, std::vector
+		Multi_Client_Acceptor(char* port, std::vector
 			<std::multimap<std::string, Pelicula>>& peliculas, 
 			FuncionesProtected& funciones);
 		virtual void run();
