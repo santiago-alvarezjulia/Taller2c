@@ -22,7 +22,10 @@ class Socket {
 		int send_(uint8_t* chunk, int sizeof_chunk);
 		int receive_(uint8_t* chunk, int sizeof_chunk);
 		
-		void shutdown_rw();
+		void shutdown_rd();
+		void shutdown_wr();
+		void shutdown_rdwr();
+		
 		~Socket();
 };
 

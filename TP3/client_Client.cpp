@@ -6,6 +6,8 @@
 #define FUNCTION_GENERO '1'
 #define FUNCTION_IDIOMA '2'
 #define FUNCTION_EDAD '3'
+#define OPERACION_INVALIDA '1'
+#define FUNCION_AGOTADA '0'
 using std::string;
 using std::cout;
 using std::cerr;
@@ -22,9 +24,9 @@ void Client::recibo_idioma_edad_genero(unsigned char function, string& data) {
 	this->protocolo.send_string(data);
 	
 	// recibo la validez de la operacion
-	unsigned int validez_operacion = this->protocolo.receive_unsigned_int();
+	unsigned char validez_operacion = this->protocolo.receive_unsigned_char();
 		
-	if (validez_operacion == 1) {
+	if (validez_operacion == OPERACION_INVALIDA) {
 		// operacion inválida
 		// me fijo en function para saber cual de las 3 funciones estoy haciendo
 		if (function == FUNCTION_GENERO) {
@@ -68,7 +70,8 @@ void Client::funciones_del_dia(unsigned char function, string& fecha) {
 		string hora = this->protocolo.receive_string();
 		
 		// recibo el estado de los asientos
-		string estado_asientos_funcion = this->protocolo.receive_string();
+		unsigned char estado_asientos_funcion = this->protocolo
+			.receive_unsigned_char();
 		
 		// si el estado de los asientos dice que esta agotada, agrego al final
 		// el texto AGOTADA
@@ -76,8 +79,8 @@ void Client::funciones_del_dia(unsigned char function, string& fecha) {
 			<< "\" en la sala " << id_sala << " con fecha " << fecha << " - " 
 			<< hora << ">";	
 		
-		if (estado_asientos_funcion == "AGOTADA") {
-			cout << " " << estado_asientos_funcion;
+		if (estado_asientos_funcion == FUNCION_AGOTADA) {
+			cout << " " << "AGOTADA";
 		}
 		cout << endl;
 		
@@ -108,18 +111,18 @@ void Client::asientos_funcion(unsigned char function, string& id_funcion) {
 	// recibo la longitud de la hora y la hora
 	string hora = this->protocolo.receive_string();
 		
-	// recibo la longitud del estado de los asientos y el 
-	// estado de los asientos
-	string estado_asientos_funcion = this->protocolo.receive_string();
-		
+	// recibo el estado de los asientos
+	unsigned char estado_asientos_funcion = this->protocolo
+		.receive_unsigned_char();
+	
 	// si el estado de los asientos dice que esta agotada, agrego al final
 	// el texto AGOTADA
 	cout << id_funcion << ": <Funcion para \"" << titulo 
 		<< "\" en la sala " << id_sala << " con fecha " << fecha << " - " 
-		<< hora << ">";
+		<< hora << ">";	
 	
-	if (estado_asientos_funcion == "AGOTADA") {
-		cout << " " << estado_asientos_funcion;
+	if (estado_asientos_funcion == FUNCION_AGOTADA) {
+		cout << " " << "AGOTADA";
 	}
 	cout << endl;
 		
@@ -171,6 +174,4 @@ void Client::reservar_asiento(unsigned char function, string& id_funcion,
 }
 
 
-Client::~Client() {
-	//this->socket.shutdown_rw();
-}
+Client::~Client() {}

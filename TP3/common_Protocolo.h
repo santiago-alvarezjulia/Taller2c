@@ -11,7 +11,7 @@ class Protocolo {
 		// constructor cliente
 		Protocolo(Socket socket, char* hostname, char* port);
 		// constructor servidor
-		Protocolo(Socket& socket);
+		explicit Protocolo(Socket& socket);
 		Protocolo(Protocolo&& other);
 		
 		void send_string(std::string& data);

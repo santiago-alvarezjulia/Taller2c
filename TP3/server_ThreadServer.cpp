@@ -14,6 +14,10 @@
 #define FUNCTION_FUNCIONES_DIA '4'
 #define FUNCTION_RESERVA '5'
 #define FUNCTION_ASIENTOS '6'
+#define OPERACION_VALIDA '0'
+#define OPERACION_INVALIDA '1'
+#define FUNCION_AGOTADA '0'
+#define FUNCION_NO_AGOTADA '1'
 #define FIN_ENVIO_SOCKET 0
 using std::string;
 using std::vector;
@@ -67,7 +71,6 @@ void ThreadServer::run() {
 				asientos();
 				break;
 		}
-		
 	}
 	// finalizo la ejecucion del hilo
 	this->esta_vivo = false;
@@ -88,8 +91,8 @@ void ThreadServer::send_genero_idioma_edad(
     if (ret.first != ret.second) {
 		// hay al menos 1 coincidencia
 		// envio un unsigned int que indica que la operacion es válida
-		unsigned int operacion_valida = 0;
-		this->protocolo.send_unsigned_int(operacion_valida);
+		unsigned char operacion_valida = OPERACION_VALIDA;
+		this->protocolo.send_unsigned_char(operacion_valida);
 		
 		// recorro en el multimap solo las claves que coinciden
 		for (multimap<string, Pelicula>::iterator it = ret.first; 
@@ -105,8 +108,8 @@ void ThreadServer::send_genero_idioma_edad(
 	} else {
 		// no hay coincidencias
 		// envio un unsigned int que indica que la operacion es inválida
-		unsigned int operacion_invalida = 1;
-		this->protocolo.send_unsigned_int(operacion_invalida);
+		unsigned char operacion_invalida = OPERACION_INVALIDA;
+		this->protocolo.send_unsigned_char(operacion_invalida);
 	}
 }
 
@@ -137,13 +140,13 @@ void ThreadServer::send_funciones_dia() {
 		this->protocolo.send_string(hora);
 		
 		bool esta_agotada_funcion = it->second.esta_agotada();
-		string estado_funcion;
+		unsigned char estado_funcion;
 		if (esta_agotada_funcion) {
-			estado_funcion = "AGOTADA";
+			estado_funcion = FUNCION_AGOTADA;
 		} else {
-			estado_funcion = "NO AGOTADA";
+			estado_funcion = FUNCION_NO_AGOTADA;
 		}
-		this->protocolo.send_string(estado_funcion);
+		this->protocolo.send_unsigned_char(estado_funcion);
 	}
 
 	// fin envio funciones de la fecha
@@ -206,14 +209,15 @@ void ThreadServer::asientos() {
 	string hora = funcion.getHora();
 	this->protocolo.send_string(hora);
 	
+	// mando el estado de la funcion
 	bool esta_agotada_funcion = funcion.esta_agotada();
-	string estado_funcion;
+	unsigned char estado_funcion;
 	if (esta_agotada_funcion) {
-		estado_funcion = "AGOTADA";
+		estado_funcion = FUNCION_AGOTADA;
 	} else {
-		estado_funcion = "NO AGOTADA";
+		estado_funcion = FUNCION_NO_AGOTADA;
 	}
-	this->protocolo.send_string(estado_funcion);
+	this->protocolo.send_unsigned_char(estado_funcion);
 			
     // envio la cantidad de columnas
 	this->protocolo.send_unsigned_int(cantidad_columnas);
@@ -246,6 +250,4 @@ bool ThreadServer::ha_terminado() {
 	return !this->esta_vivo;
 }
 
-ThreadServer::~ThreadServer() {
-	//this->socket.shutdown_rw();
-}
+ThreadServer::~ThreadServer() {}

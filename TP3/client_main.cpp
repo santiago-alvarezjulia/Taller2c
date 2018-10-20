@@ -7,6 +7,7 @@
 #define OK 0
 #define ERROR 1
 #define SOCKET_ERROR 2
+#define UNKNOWN_ERROR 3
 #define POS_HOSTNAME 1
 #define POS_PORT 2
 #define DELIM_CIN ' '
@@ -36,6 +37,9 @@ int main(int argc, char* argv []) {
 		return ERROR;
 	}
 	
+	// codigo de retorno que puede ser modificado en algun catch
+	int return_value = OK;
+
 	try {
 		// Puede lanzar SocketError
 		Client cliente(argv[POS_HOSTNAME], argv[POS_PORT]);
@@ -72,9 +76,15 @@ int main(int argc, char* argv []) {
 			}
 		}
 	} catch (const SocketError& e) {
-		// no printeo e.what para que no fallen las pruebas en sercom
-		return SOCKET_ERROR;
+		cout << e.what() << endl;
+		return_value = SOCKET_ERROR;
+	} catch (const std::exception& e) {
+		cout << e.what() << endl;
+		return_value = UNKNOWN_ERROR;
+	} catch (...) {
+		cout << "Error desconocido" << endl;
+		return_value = UNKNOWN_ERROR;
 	}
 	
-	return OK;
+	return return_value;
 }

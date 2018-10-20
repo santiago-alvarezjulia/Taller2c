@@ -12,6 +12,8 @@
 using std::vector;
 using std::multimap;
 using std::string;
+using std::cout;
+using std::endl;
 
 
 Multi_Client_Acceptor::Multi_Client_Acceptor(Socket& socket, 
@@ -44,13 +46,17 @@ void Multi_Client_Acceptor::run() {
 		}
 	} catch (const SocketError& e) {
 		// no printeo e.what para que no fallen las pruebas en sercom
+	} catch (const std::exception& e) {
+		cout << e.what() << endl;
+	} catch (...) {
+		cout << "Error desconocido" << endl;
 	}
 }
 
 void Multi_Client_Acceptor::frenar() {
 	this->esta_vivo = false;
 	// cierro la conexion del socket aceptador
-	this->socket_aceptador.shutdown_rw();
+	this->socket_aceptador.shutdown_rdwr();
 }
 
 Multi_Client_Acceptor::~Multi_Client_Acceptor() {

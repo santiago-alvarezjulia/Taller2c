@@ -21,7 +21,7 @@ void Protocolo::send_string(string& data) {
     // envio primero el largo del string la data
     this->send_unsigned_int(data.size());
     // para obtener el puntero al inicio de data utilizo std::vector::data
-    vector<uint8_t> data_vector (data.begin(), data.end());
+    vector<uint8_t> data_vector(data.begin(), data.end());
     this->socket.send_(data_vector.data(), data.size());
 }
 
@@ -72,4 +72,6 @@ unsigned char Protocolo::receive_unsigned_char() {
     return data;
 }
 
-Protocolo::~Protocolo() {}
+Protocolo::~Protocolo() {
+    this->socket.shutdown_rdwr();
+}

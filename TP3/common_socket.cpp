@@ -150,7 +150,15 @@ int Socket::receive_(uint8_t* chunk, int sizeof_chunk) {
 }
 
 
-void Socket::shutdown_rw() {
+void Socket::shutdown_rd() {
+	shutdown(this->socket_fd, SHUT_RD);
+}
+
+void Socket::shutdown_wr() {
+	shutdown(this->socket_fd, SHUT_WR);
+}
+
+void Socket::shutdown_rdwr() {
 	shutdown(this->socket_fd, SHUT_RDWR);
 }
 
