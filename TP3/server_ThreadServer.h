@@ -5,13 +5,14 @@
 #include "server_Pelicula.h"
 #include "server_Funcion.h"
 #include "server_thread.h"
+#include "common_Protocolo.h"
 #include "server_FuncionesProtected.h"
 #include <vector>
 #include <map>
 #include <string>
 
 class ThreadServer : public Thread {
-	Socket socket;
+	Protocolo protocolo;
 	bool esta_vivo;
 	std::vector<std::multimap<std::string, Pelicula>> peliculas;
 	FuncionesProtected& funciones;

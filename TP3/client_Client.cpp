@@ -28,11 +28,11 @@ void Client::recibo_idioma_edad_genero(unsigned char function, string& data) {
 		// operacion inválida
 		// me fijo en function para saber cual de las 3 funciones estoy haciendo
 		if (function == FUNCTION_GENERO) {
-			cerr << "Genero no reconocido" << endl;
+			cout << "Genero no reconocido" << endl;
 		} else if (function == FUNCTION_IDIOMA) {
-			cerr << "Idioma no reconocido" << endl;
+			cout << "Idioma no reconocido" << endl;
 		} else {
-			cerr << "Edad no reconocida" << endl;
+			cout << "Edad no reconocida" << endl;
 		}
 		
 		return;
@@ -115,8 +115,8 @@ void Client::asientos_funcion(unsigned char function, string& id_funcion) {
 	// si el estado de los asientos dice que esta agotada, agrego al final
 	// el texto AGOTADA
 	cout << id_funcion << ": <Funcion para \"" << titulo 
-	<< "\" en la sala " << id_sala << " con fecha " << fecha << " - " 
-	<< hora << ">";
+		<< "\" en la sala " << id_sala << " con fecha " << fecha << " - " 
+		<< hora << ">";
 	
 	if (estado_asientos_funcion == "AGOTADA") {
 		cout << " " << estado_asientos_funcion;

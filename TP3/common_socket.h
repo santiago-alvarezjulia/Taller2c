@@ -3,8 +3,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include <netdb.h> 
-
+#include <netdb.h>
 
 class Socket {
 	int socket_fd;
@@ -20,8 +19,8 @@ class Socket {
 		void connect_(const char* hostname, const char* service_name);
 		Socket accept_();
 		
-		int send_(unsigned char* chunk, int sizeof_chunk);
-		int receive_(unsigned char* chunk, int sizeof_chunk);
+		int send_(uint8_t* chunk, int sizeof_chunk);
+		int receive_(uint8_t* chunk, int sizeof_chunk);
 		
 		void shutdown_rw();
 		~Socket();

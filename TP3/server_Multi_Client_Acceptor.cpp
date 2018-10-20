@@ -38,8 +38,8 @@ void Multi_Client_Acceptor::run() {
 				}
 			}
 		
-			this->threads.emplace_back(ThreadServer(asoc, this->peliculas, 
-				this->funciones));
+			this->threads.emplace_back(asoc, 
+				this->peliculas, this->funciones);
 			this->threads[this->threads.size() - 1].start();
 		}
 	} catch (const SocketError& e) {

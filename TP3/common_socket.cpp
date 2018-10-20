@@ -53,30 +53,6 @@ void Socket::connect_(const char* hostname, const char* port) {
 	}
 }
 
-
-int Socket::send_(unsigned char* chunk, int sizeof_chunk) {
-	int bytes_enviados = 0;
-	int s;
-	bool is_valid_socket = true;
-	bool is_open_socket = true;
-	
-	while(bytes_enviados < sizeof_chunk && is_valid_socket && is_open_socket) {
-		s = send(this->socket_fd, &chunk[bytes_enviados], 
-		sizeof_chunk - bytes_enviados, MSG_NOSIGNAL);
-		if (s < 0) {
-			is_valid_socket = false;
-		} else if (s == 0) {
-			is_open_socket = false;
-		} else {
-			bytes_enviados += s;
-		}
-	}	
-	if (is_valid_socket) {
-		return OK;
-	}
-	return ERROR;
-}
-
 	
 void Socket::bind_and_listen(const char* port) {
 	int val = 1;
@@ -119,7 +95,31 @@ Socket Socket::accept_(){
 }
 
 
-int Socket::receive_(unsigned char* chunk, int sizeof_chunk) {
+int Socket::send_(uint8_t* chunk, int sizeof_chunk) {
+	int bytes_enviados = 0;
+	int s;
+	bool is_valid_socket = true;
+	bool is_open_socket = true;
+	
+	while(bytes_enviados < sizeof_chunk && is_valid_socket && is_open_socket) {
+		s = send(this->socket_fd, &chunk[bytes_enviados], 
+		sizeof_chunk - bytes_enviados, MSG_NOSIGNAL);
+		if (s < 0) {
+			is_valid_socket = false;
+		} else if (s == 0) {
+			is_open_socket = false;
+		} else {
+			bytes_enviados += s;
+		}
+	}	
+	if (is_valid_socket) {
+		return OK;
+	}
+	return ERROR;
+}
+
+
+int Socket::receive_(uint8_t* chunk, int sizeof_chunk) {
 	int bytes_recibidos = 0;
 	int s;
 	bool is_open_socket = true;
