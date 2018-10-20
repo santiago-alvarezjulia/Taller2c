@@ -13,6 +13,7 @@
 #include "server_FuncionesProtected.h"
 #include "server_ArchivoEntradaError.h"
 #include "common_SocketError.h"
+#include "server_Parser.h"
 #define CANT_PARAMETROS 5
 #define POS_PORT 1
 #define POS_SALAS 2
@@ -72,45 +73,15 @@ int main(int argc, char* argv []) {
 		return ERROR_PARAMETROS;
 	}
 	
+	// Inicializo el parser
+	Parser parser;
+
 	// Parseo el archivo de salas.
-	map<string, Sala> salas;
-	string id_sala;
-	string pantalla;
-	string capacidad;
-	
-	while (getline(archivo_salas, id_sala, DELIM_CSV) && 
-		getline(archivo_salas, pantalla, DELIM_CSV) && 
-		getline(archivo_salas, capacidad)) {
-		salas.emplace(id_sala, Sala(id_sala, pantalla, capacidad));
-	}
+	map<string, Sala> salas = parser.parsear_archivo_salas(archivo_salas);
 	
 	// Parseo el archivo de peliculas.
-	string titulo;
-	string idioma;
-	string edad;
-	string genero;
-	multimap<string, Pelicula> pelicula_segun_idioma;
-	multimap<string, Pelicula> pelicula_segun_edad;
-	multimap<string, Pelicula> pelicula_segun_genero;
-	multimap<string, Pelicula> pelicula_segun_titulo;
-	vector<multimap<string, Pelicula>> peliculas;
-	
-	while (getline(archivo_peliculas, titulo, DELIM_CSV) && 
-		getline(archivo_peliculas, idioma, DELIM_CSV) &&
-		getline(archivo_peliculas, edad, DELIM_CSV) && 
-		getline(archivo_peliculas, genero)) {
-		Pelicula pelicula(titulo, idioma, edad, genero);
-			
-		pelicula_segun_idioma.emplace(idioma, pelicula);
-		pelicula_segun_edad.emplace(edad, pelicula);
-		pelicula_segun_genero.emplace(genero, pelicula);
-		pelicula_segun_titulo.emplace(titulo, pelicula);
-	}
-	
-	peliculas.emplace_back(std::move(pelicula_segun_idioma));
-	peliculas.emplace_back(std::move(pelicula_segun_edad));
-	peliculas.emplace_back(std::move(pelicula_segun_genero));
-	peliculas.emplace_back(std::move(pelicula_segun_titulo));
+	vector<multimap<string, Pelicula>> peliculas = parser
+		.parsear_archivo_peliculas(archivo_peliculas);
 		
 	// codigo de retorno que puede ser modificado en algun catch
 	int return_value = OK;
