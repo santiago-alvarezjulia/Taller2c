@@ -1,1 +1,8 @@
 TP3/.vscode/settings.json
+*.in
+*.o
+TP3/client
+TP3/server
+TP3/funciones
+TP3/pelis
+TP3/salas

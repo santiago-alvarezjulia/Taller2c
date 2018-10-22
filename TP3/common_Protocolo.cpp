@@ -45,10 +45,11 @@ string Protocolo::receive_string() {
         return std::move(string());
     }
 
-    // recibo la data
-    string data(len_data, CHAR_INITIALIZE_STRING);
-    // para obtener el puntero al inicio de data utilizo std::vector::data
-	this->socket.receive_((uint8_t*) data.c_str(), len_data);
+    // recibo la data. utilizo std::vector::data
+    vector<uint8_t> data_vector(len_data, CHAR_INITIALIZE_STRING);
+	this->socket.receive_(data_vector.data(), len_data);
+
+    string data(data_vector.begin(), data_vector.end());
 
     return std::move(data);
 }

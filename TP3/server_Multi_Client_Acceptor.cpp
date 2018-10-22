@@ -38,6 +38,7 @@ void Multi_Client_Acceptor::run() {
 				if (this->threads[i].ha_terminado() && 
 					this->threads[i].joinable()) {
 					this->threads[i].join();
+					this->threads.erase(this->threads.begin() + i);
 				}
 			}
 		
@@ -46,7 +47,9 @@ void Multi_Client_Acceptor::run() {
 			this->threads[this->threads.size() - 1].start();
 		}
 	} catch (const SocketError& e) {
-		// no printeo e.what para que no fallen las pruebas en sercom
+		if (this->esta_vivo) {
+			cout << e.what() << endl;
+		}
 	} catch (const std::exception& e) {
 		cout << e.what() << endl;
 	} catch (...) {
