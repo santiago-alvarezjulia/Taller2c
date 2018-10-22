@@ -88,46 +88,13 @@ int main(int argc, char* argv []) {
 			.parsear_archivo_peliculas(archivo_peliculas);
 		
 		// Parseo el archivo de funciones.
-		int id_funcion = 1;
-		string id_sala;
-		string titulo;
-		string fecha;
-		string hora;
-		FuncionesProtected funciones;
-	
-		while (getline(archivo_funciones, id_sala, DELIM_CSV) && 
-			getline(archivo_funciones, titulo, DELIM_CSV) &&
-			getline(archivo_funciones, fecha, DELIM_CSV) && 
-			getline(archivo_funciones, hora)) {
-			map<string, Sala>::iterator it_salas = salas.find(id_sala);
-			if (it_salas == salas.end()) {
-				// throw general excepcion
-				return_value = ERROR_ARCHIVOS;
-				throw GeneralError("La sala %s no existe en el sistema.", 
-					id_sala);
-			}
-		
-			map<string, Pelicula>::iterator it_peliculas = peliculas[3].find(titulo);
-			if (it_peliculas == peliculas[3].end()) {
-				// throw general excepcion
-				return_value = ERROR_ARCHIVOS;
-				throw GeneralError("La película %s no existe en el sistema.", 
-					titulo);
-			}
-			
-			string id_funcion_str = to_string(id_funcion);
-			Funcion funcion(id_funcion_str, it_salas->second, 
-				it_peliculas->second, fecha, hora);
-			
-			funciones.agregar_funcion(id_funcion_str, funcion);
-			
-			id_funcion++;
-		}
+		FuncionesProtected funciones = parser.parsear_archivo_funciones(
+			archivo_funciones, salas, peliculas[3]);
 		
 		// creo el hilo que va a aceptar conexiones de clientesy lo lanzo
 		// puede lanzar SocketError
 		Multi_Client_Acceptor thread_acceptor(argv[POS_PORT], peliculas, 
-			funciones);
+			std::move(funciones));
 		thread_acceptor.start();
 	
 		// leo por entrada estandar std::cin 
@@ -144,6 +111,9 @@ int main(int argc, char* argv []) {
 		return_value = ERROR_SOCKET;
 	} catch (const GeneralError& e) {
 		cerr << e.what() << endl;
+		if (return_value == OK) {
+			return_value = ERROR_ARCHIVOS;
+		}
 	} catch (const std::exception& e) {
 		cout << e.what() << endl;
 		return_value = UNKNOWN_ERROR;

@@ -13,11 +13,14 @@ class FuncionesProtected {
 	
 	public:
 		FuncionesProtected();
+		FuncionesProtected(FuncionesProtected&& other);
+
 		void agregar_funcion(std::string& id_funcion, Funcion& funcion);
 		std::map<std::string, Funcion> send_funciones_dia(std::string& fecha);
 		bool reservar_asiento(std::string& id_funcion, std::string& fila,
 			std::string& columna);
 		Funcion asientos(std::string& id_funcion); 
+		
 		~FuncionesProtected();
 };
 

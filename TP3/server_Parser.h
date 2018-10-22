@@ -7,6 +7,8 @@
 #include <vector>
 #include "server_Sala.h"
 #include "server_Pelicula.h"
+#include "server_FuncionesProtected.h"
+#include "server_Funcion.h"
 
 class Parser {
 	public:
@@ -15,6 +17,9 @@ class Parser {
             std::fstream& archivo_salas);
         std::vector<std::multimap<std::string, Pelicula>> 
             parsear_archivo_peliculas(std::fstream& archivo_peliculas);
+        FuncionesProtected parsear_archivo_funciones(std::fstream& 
+            archivo_funciones, std::map<std::string, Sala>& salas, 
+            std::multimap<std::string, Pelicula>& peliculas);
 		~Parser();	
 };
 

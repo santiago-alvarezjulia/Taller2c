@@ -18,9 +18,9 @@ using std::endl;
 
 Multi_Client_Acceptor::Multi_Client_Acceptor(char* port, 
 	vector<multimap<string, Pelicula>>& peliculas, 
-	FuncionesProtected& funciones) : 
+	FuncionesProtected funciones) : 
 	socket_aceptador(std::move(Socket())), peliculas(peliculas), 
-	funciones(funciones) {
+	funciones(std::move(funciones)) {
 	this->esta_vivo = true;
 	this->socket_aceptador.bind_and_listen(port);
 	this->threads = vector<ThreadServer>();
@@ -38,7 +38,6 @@ void Multi_Client_Acceptor::run() {
 				if (this->threads[i].ha_terminado() && 
 					this->threads[i].joinable()) {
 					this->threads[i].join();
-					this->threads.erase(this->threads.begin() + i);
 				}
 			}
 		

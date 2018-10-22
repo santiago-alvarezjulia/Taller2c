@@ -14,14 +14,14 @@
 class Multi_Client_Acceptor : public Thread {
 	Socket socket_aceptador;
 	std::vector<std::multimap<std::string, Pelicula>>& peliculas;
-	FuncionesProtected& funciones;
+	FuncionesProtected funciones;
 	std::vector<ThreadServer> threads;
 	bool esta_vivo;
 	
 	public:
 		Multi_Client_Acceptor(char* port, std::vector
 			<std::multimap<std::string, Pelicula>>& peliculas, 
-			FuncionesProtected& funciones);
+			FuncionesProtected funciones);
 		virtual void run();
 		void frenar();
 		~Multi_Client_Acceptor();

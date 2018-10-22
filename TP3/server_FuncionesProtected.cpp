@@ -15,6 +15,10 @@ FuncionesProtected::FuncionesProtected() {
 	this->mutex_funciones = map<string, mutex*>();
 }
 
+FuncionesProtected::FuncionesProtected(FuncionesProtected&& other) :
+	funciones(std::move(other.funciones)), 
+	mutex_funciones(std::move(other.mutex_funciones)) {}
+
 void FuncionesProtected::agregar_funcion(string& id_funcion, 
 	Funcion& funcion) {
 	this->funciones.emplace(id_funcion, funcion);	

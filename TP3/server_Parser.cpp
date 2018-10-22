@@ -5,12 +5,16 @@
 #include <vector>
 #include "server_Sala.h"
 #include "server_Pelicula.h"
+#include "server_FuncionesProtected.h"
+#include "server_Funcion.h"
+#include "common_GeneralError.h"
 #define DELIM_CSV ','
 using std::map;
 using std::string;
 using std::fstream;
 using std::vector;
 using std::multimap;
+using std::to_string;
 
 Parser::Parser() {}
 
@@ -59,6 +63,46 @@ vector<multimap<string, Pelicula>> Parser::parsear_archivo_peliculas(
 	peliculas.emplace_back(std::move(pelicula_segun_titulo));
 
     return std::move(peliculas);
+}
+
+FuncionesProtected Parser::parsear_archivo_funciones(fstream& archivo_funciones,
+	map<string, Sala>& salas, multimap<string, Pelicula>& peliculas) {
+	int id_funcion = 1;
+	string id_sala;
+	string titulo;
+	string fecha;
+	string hora;
+	FuncionesProtected funciones;
+	
+	while (getline(archivo_funciones, id_sala, DELIM_CSV) && 
+		getline(archivo_funciones, titulo, DELIM_CSV) &&
+		getline(archivo_funciones, fecha, DELIM_CSV) && 
+		getline(archivo_funciones, hora)) {
+		map<string, Sala>::iterator it_salas = salas.find(id_sala);
+		if (it_salas == salas.end()) {
+			// throw general excepcion
+			throw GeneralError("La sala %s no existe en el sistema.", 
+				id_sala);
+		}
+	
+		multimap<string, Pelicula>::iterator it_peliculas = peliculas
+			.find(titulo);
+		if (it_peliculas == peliculas.end()) {
+			// throw general excepcion
+			throw GeneralError("La película %s no existe en el sistema.", 
+				titulo);
+		}
+			
+		string id_funcion_str = to_string(id_funcion);
+		Funcion funcion(id_funcion_str, it_salas->second, 
+			it_peliculas->second, fecha, hora);
+		
+		funciones.agregar_funcion(id_funcion_str, funcion);
+		
+		id_funcion++;
+	}
+
+	return std::move(funciones);
 }
 
 Parser::~Parser() {}
