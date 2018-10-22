@@ -14,7 +14,7 @@ class Parser {
         std::map<std::string, Sala> parsear_archivo_salas(
             std::fstream& archivo_salas);
         std::vector<std::multimap<std::string, Pelicula>> 
-            Parser::parsear_archivo_peliculas(std::fstream& archivo_peliculas);
+            parsear_archivo_peliculas(std::fstream& archivo_peliculas);
 		~Parser();	
 };
 

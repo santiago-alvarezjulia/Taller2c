@@ -29,12 +29,16 @@ void Client::recibo_idioma_edad_genero(unsigned char function, string& data) {
 	if (validez_operacion == OPERACION_INVALIDA) {
 		// operacion inválida
 		// me fijo en function para saber cual de las 3 funciones estoy haciendo
-		if (function == FUNCTION_GENERO) {
-			cout << "Genero no reconocido" << endl;
-		} else if (function == FUNCTION_IDIOMA) {
-			cout << "Idioma no reconocido" << endl;
-		} else {
-			cout << "Edad no reconocida" << endl;
+		switch (function) {
+			case FUNCTION_GENERO:
+				cout << "Genero no reconocido" << endl;
+				break;
+			case FUNCTION_IDIOMA:
+			 	cout << "Idioma no reconocido" << endl;
+				break;
+			case FUNCTION_EDAD:
+				cout << "Edad no reconocida" << endl;
+				break;
 		}
 		
 		return;

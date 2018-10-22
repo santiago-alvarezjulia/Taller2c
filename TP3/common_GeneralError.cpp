@@ -6,12 +6,10 @@
 #include <cstring>
 
 GeneralError::GeneralError(const char* fmt, ...) noexcept {
-	int _errno = errno;
 	va_list args;
 	va_start(args, fmt);
-	int s = vsnprintf(this->message_error, BUFF_LEN, fmt, args);
+	vsnprintf(this->message_error, BUFF_LEN, fmt, args);
 	va_end(args);
-	strncpy(this->message_error + s, strerror(_errno), BUFF_LEN - s);
 	this->message_error[BUFF_LEN - 1] = 0;
 }
 
