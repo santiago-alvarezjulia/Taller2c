@@ -1,6 +1,7 @@
 #include "common_socket.h"
 #include "client_Client.h"
 #include "common_SocketError.h"
+#include "common_GeneralError.h"
 #include <iostream>
 #include <string>
 #define CANT_PARAMETROS 3
@@ -30,17 +31,15 @@ using std::endl;
 using std::string;
 
 int main(int argc, char* argv []) {
-	if (argc != CANT_PARAMETROS) {
-		cerr << 
-		"Uso: ./client <ip-servidor> <puerto-servidor>" 
-		<< endl;
-		return ERROR;
-	}
-	
-	// codigo de retorno que puede ser modificado en algun catch
+	// codigo de retorno que puede ser modificado en algun catch o antes del
+	// throw
 	int return_value = OK;
 
 	try {
+		if (argc != CANT_PARAMETROS) {
+			throw GeneralError("Uso: ./client <ip-servidor> <puerto-servidor>");
+		}
+		
 		// Puede lanzar SocketError
 		Client cliente(argv[POS_HOSTNAME], argv[POS_PORT]);
 		
@@ -78,6 +77,8 @@ int main(int argc, char* argv []) {
 	} catch (const SocketError& e) {
 		cout << e.what() << endl;
 		return_value = SOCKET_ERROR;
+	} catch (const GeneralError& e) {
+		cout << e.what() << endl;
 	} catch (const std::exception& e) {
 		cout << e.what() << endl;
 		return_value = UNKNOWN_ERROR;

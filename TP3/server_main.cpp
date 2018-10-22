@@ -11,7 +11,7 @@
 #include "server_ThreadServer.h"
 #include "server_Multi_Client_Acceptor.h"
 #include "server_FuncionesProtected.h"
-#include "server_ArchivoEntradaError.h"
+#include "common_GeneralError.h"
 #include "common_SocketError.h"
 #include "server_Parser.h"
 #define CANT_PARAMETROS 5
@@ -44,49 +44,49 @@ using std::mutex;
 
 
 int main(int argc, char* argv []) {
-	// verifico cantidad de parametros
-	if (argc != CANT_PARAMETROS) {
-		cerr << 
-		"Uso: ./server <puerto> <salas.csv> <peliculas.csv> <funciones.csv>" 
-		<< endl;
-		return ERROR_PARAMETROS;
-	}
-	
-	// Abro el archivo de salas.
-	fstream archivo_salas((const char*)argv[POS_SALAS], fstream::in);
-	if (archivo_salas.fail()) {
-		cerr << "El archivo " << argv[POS_SALAS] << " no existe." << endl;
-		return ERROR_PARAMETROS;
-	}
-	
-	// Abro el archivo de peliculas.
-	fstream archivo_peliculas((const char*)argv[POS_PELICULAS], fstream::in);
-	if (archivo_peliculas.fail()) {
-		cerr << "El archivo " << argv[POS_PELICULAS] << " no existe." << endl;
-		return ERROR_PARAMETROS;
-	}
-	
-	// Abro el archivo de funciones.
-	fstream archivo_funciones((const char*)argv[POS_FUNCIONES], fstream::in);
-	if (archivo_funciones.fail()) {
-		cerr << "El archivo " << argv[POS_FUNCIONES] << " no existe." << endl;
-		return ERROR_PARAMETROS;
-	}
-	
-	// Inicializo el parser
-	Parser parser;
-
-	// Parseo el archivo de salas.
-	map<string, Sala> salas = parser.parsear_archivo_salas(archivo_salas);
-	
-	// Parseo el archivo de peliculas.
-	vector<multimap<string, Pelicula>> peliculas = parser
-		.parsear_archivo_peliculas(archivo_peliculas);
-		
-	// codigo de retorno que puede ser modificado en algun catch
+	// codigo de retorno que puede ser modificado en algun catch o antes del
+	// throw
 	int return_value = OK;
 
 	try {
+		// verifico cantidad de parametros
+		if (argc != CANT_PARAMETROS) {
+			return_value = ERROR_PARAMETROS;
+			throw GeneralError(
+			"Uso: ./server <puerto> <salas.csv> <peliculas.csv> <funciones.csv>");
+		}
+
+		// Abro el archivo de salas.
+		fstream archivo_salas((const char*)argv[POS_SALAS], fstream::in);
+		if (archivo_salas.fail()) {
+			return_value = ERROR_PARAMETROS;
+			throw GeneralError("El archivo %s no existe.", argv[POS_SALAS]);
+		}
+	
+		// Abro el archivo de peliculas.
+		fstream archivo_peliculas((const char*)argv[POS_PELICULAS], fstream::in);
+		if (archivo_peliculas.fail()) {
+			return_value = ERROR_PARAMETROS;
+			throw GeneralError("El archivo %s no existe.", argv[POS_PELICULAS]);
+		}
+
+		// Abro el archivo de funciones.
+		fstream archivo_funciones((const char*)argv[POS_FUNCIONES], fstream::in);
+		if (archivo_funciones.fail()) {
+			return_value = ERROR_PARAMETROS;
+			throw GeneralError("El archivo %s no existe.", argv[POS_FUNCIONES]);
+		}
+
+		// Inicializo el parser
+		Parser parser;
+
+		// Parseo el archivo de salas.
+		map<string, Sala> salas = parser.parsear_archivo_salas(archivo_salas);
+
+		// Parseo el archivo de peliculas.
+		vector<multimap<string, Pelicula>> peliculas = parser
+			.parsear_archivo_peliculas(archivo_peliculas);
+		
 		// Parseo el archivo de funciones.
 		int id_funcion = 1;
 		string id_sala;
@@ -101,18 +101,18 @@ int main(int argc, char* argv []) {
 			getline(archivo_funciones, hora)) {
 			map<string, Sala>::iterator it_salas = salas.find(id_sala);
 			if (it_salas == salas.end()) {
-				string message_error = "La sala " + id_sala + 
-					" no existe en el sistema.";
-				// throw excepcion
-				throw ArchivoEntradaError(message_error);
+				// throw general excepcion
+				return_value = ERROR_ARCHIVOS;
+				throw GeneralError("La sala %s no existe en el sistema.", 
+					id_sala);
 			}
 		
 			map<string, Pelicula>::iterator it_peliculas = peliculas[3].find(titulo);
 			if (it_peliculas == peliculas[3].end()) {
-				string message_error = "La película " + titulo + 
-					" no existe en el sistema.";
-				// throw excepcion
-				throw ArchivoEntradaError(message_error);
+				// throw general excepcion
+				return_value = ERROR_ARCHIVOS;
+				throw GeneralError("La película %s no existe en el sistema.", 
+					titulo);
 			}
 			
 			string id_funcion_str = to_string(id_funcion);
@@ -139,12 +139,11 @@ int main(int argc, char* argv []) {
 		// recibí END_APP. Freno el hilo que acepta nuevos clientes y joineo
 		thread_acceptor.frenar();
 		thread_acceptor.join();
-	} catch (const ArchivoEntradaError& e) {
-		cerr << e.what() << endl;
-		return_value = ERROR_ARCHIVOS;
 	} catch (const SocketError& e) {
 		cerr << e.what() << endl;
 		return_value = ERROR_SOCKET;
+	} catch (const GeneralError& e) {
+		cerr << e.what() << endl;
 	} catch (const std::exception& e) {
 		cout << e.what() << endl;
 		return_value = UNKNOWN_ERROR;
